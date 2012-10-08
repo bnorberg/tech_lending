@@ -1,0 +1,23 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  id: 
+  item_id: 1
+  date: 2012-09-29
+  start_time: 2012-09-29 16:37:06
+  end_time: 2012-09-29 16:37:06
+  duration: 1
+  patron_status: MyString
+  patron_college: MyString
+  renewals: 1
+
+two:
+  id: 
+  item_id: 1
+  date: 2012-09-29
+  start_time: 2012-09-29 16:37:06
+  end_time: 2012-09-29 16:37:06
+  duration: 1
+  patron_status: MyString
+  patron_college: MyString
+  renewals: 1

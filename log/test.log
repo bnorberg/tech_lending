@@ -1,0 +1,41 @@
+Connecting to database specified by database.yml
+Connecting to database specified by database.yml
+  [1m[36m (0.2ms)[0m  [1mSELECT @@FOREIGN_KEY_CHECKS[0m
+  [1m[35m (0.2ms)[0m  SET FOREIGN_KEY_CHECKS = 0
+  [1m[36m (0.2ms)[0m  [1mBEGIN[0m
+  [1m[35mFixture Delete (0.2ms)[0m  DELETE FROM `checkouts`
+  [1m[36mFixture Insert (0.4ms)[0m  [1mINSERT INTO `checkouts` (`id`, `item_id`, `date`, `start_time`, `end_time`, `duration`, `patron_status`, `patron_college`, `renewals`, `created_at`, `updated_at`) VALUES (NULL, 1, '2012-09-29', '2012-09-29 16:37:06', '2012-09-29 16:37:06', 1, 'MyString', 'MyString', 1, '2012-10-05 13:04:31', '2012-10-05 13:04:31')[0m
+  [1m[35mFixture Insert (0.4ms)[0m  INSERT INTO `checkouts` (`id`, `item_id`, `date`, `start_time`, `end_time`, `duration`, `patron_status`, `patron_college`, `renewals`, `created_at`, `updated_at`) VALUES (NULL, 1, '2012-09-29', '2012-09-29 16:37:06', '2012-09-29 16:37:06', 1, 'MyString', 'MyString', 1, '2012-10-05 13:04:31', '2012-10-05 13:04:31')
+  [1m[36mFixture Delete (0.2ms)[0m  [1mDELETE FROM `items`[0m
+  [1m[35mFixture Insert (0.2ms)[0m  INSERT INTO `items` (`id`, `call_number`, `name`, `location`, `created_at`, `updated_at`) VALUES (NULL, 'MyString', 'MyString', 'MyString', '2012-10-05 13:04:32', '2012-10-05 13:04:32')
+  [1m[36mFixture Insert (0.4ms)[0m  [1mINSERT INTO `items` (`id`, `call_number`, `name`, `location`, `created_at`, `updated_at`) VALUES (NULL, 'MyString', 'MyString', 'MyString', '2012-10-05 13:04:32', '2012-10-05 13:04:32')[0m
+  [1m[35m (25.0ms)[0m  COMMIT
+  [1m[36m (0.2ms)[0m  [1mSET FOREIGN_KEY_CHECKS = 1[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (0.1ms)[0m  [1mROLLBACK[0m

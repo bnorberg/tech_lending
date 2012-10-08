@@ -1,0 +1,50 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Id:</b>
+  <%= @checkout.id %>
+</p>
+
+<p>
+  <b>Item:</b>
+  <%= @checkout.item_id %>
+</p>
+
+<p>
+  <b>Date:</b>
+  <%= @checkout.date %>
+</p>
+
+<p>
+  <b>Start time:</b>
+  <%= @checkout.start_time %>
+</p>
+
+<p>
+  <b>End time:</b>
+  <%= @checkout.end_time %>
+</p>
+
+<p>
+  <b>Duration:</b>
+  <%= @checkout.duration %>
+</p>
+
+<p>
+  <b>Patron status:</b>
+  <%= @checkout.patron_status %>
+</p>
+
+<p>
+  <b>Patron college:</b>
+  <%= @checkout.patron_college %>
+</p>
+
+<p>
+  <b>Renewals:</b>
+  <%= @checkout.renewals %>
+</p>
+
+
+<%= link_to 'Edit', edit_checkout_path(@checkout) %> |
+<%= link_to 'Back', checkouts_path %>

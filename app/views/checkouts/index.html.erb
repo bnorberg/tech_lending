@@ -1,0 +1,39 @@
+<h1>Listing checkouts</h1>
+
+<table>
+  <tr>
+    <th>Id</th>
+    <th>Item</th>
+    <th>Date</th>
+    <th>Start time</th>
+    <th>End time</th>
+    <th>Duration</th>
+    <th>Patron status</th>
+    <th>Patron college</th>
+    <th>Renewals</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @checkouts.each do |checkout| %>
+  <tr>
+    <td><%= checkout.id %></td>
+    <td><%= checkout.item_id %></td>
+    <td><%= checkout.date %></td>
+    <td><%= checkout.start_time %></td>
+    <td><%= checkout.end_time %></td>
+    <td><%= checkout.duration %></td>
+    <td><%= checkout.patron_status %></td>
+    <td><%= checkout.patron_college %></td>
+    <td><%= checkout.renewals %></td>
+    <td><%= link_to 'Show', checkout %></td>
+    <td><%= link_to 'Edit', edit_checkout_path(checkout) %></td>
+    <td><%= link_to 'Destroy', checkout, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Checkout', new_checkout_path %>
