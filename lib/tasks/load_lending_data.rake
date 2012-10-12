@@ -51,8 +51,8 @@ namespace :db do
         begin 
           @the_line = l
           line = CSV.parse_line(@the_line, {:col_sep => '^', :encoding => 'n'})
-          # if line[0].include? "CV"
-          if line[5] == 'UTCHECKEDOUT'
+          if line[1].match /^S\d\dCV.*\z/
+           if line[5] == 'UTCHECKEDOUT'
             @record = Item.find_by_call_number(line[8])
             puts @record.inspect
             if line[4] == 'PEGRAD'
@@ -172,7 +172,7 @@ namespace :db do
                end
               end 
             end     
-          elsif line[6] == 'UTCHECKEDOUT'
+           elsif line[6] == 'UTCHECKEDOUT'
             if line[8].include? 'AIR' or line[8].include? '45W'
               @record = Item.find_by_call_number(line[8])
                puts @record.inspect
@@ -338,7 +338,7 @@ namespace :db do
                    end
               end   
             end  
-          elsif line[7] == 'UTCHECKEDOUT'
+           elsif line[7] == 'UTCHECKEDOUT'
             if line[3] == 'PHVISNOPAY' or line[4] == 'UJDELINQUENT'
               @record = Item.find_by_call_number(line[10])
               puts @record.inspect
@@ -520,10 +520,49 @@ namespace :db do
                 end
               end  
             end  
-          else 
-            puts "The record #{@the_line} has no corresponding checkout. No records were created."
-            @errors << @the_line
-          end   
+           else
+             if line[3] == 'ILLOST-PAID'
+               puts "This is not a circulation."
+             else   
+               puts "The record #{@the_line} has no corresponding checkout. No records were created."
+               @errors << @the_line
+             end   
+           end
+          elsif line[1].match /^S\d\dRY.*\z/ or line[1].match /^S\d\dRV.*\z/
+            @record = Item.find_by_call_number(line[2])
+            if @record.nil?
+              puts "The record #{@the_line} has no corresponding checkout. No records were created."
+              @errors << @the_line
+            else
+              open_record = @record.checkouts.find_all_by_end_time(nil).first
+              if open_record.nil?
+                record = @record.checkouts.last
+                Checkout.update(record.id, :renewals => record.renewals + 1)
+                puts "Renewals for #{record.id} were updated."
+              else  
+                Checkout.update(open_record.id, :renewals => open_record.renewals + 1)
+                puts "Renewals for #{open_record.id} were updated."
+              end  
+            end 
+          elsif line[1].match /^S\d\dEV.*\z/
+            @record = Item.find_by_call_number(line[2])
+            if @record.nil?
+              puts "The record #{@the_line} has no corresponding checkout. No records were created."
+            else
+              if line[3] == 'ILLOST-PAID'
+                 puts "This is not a circulation."
+               else   
+                 open_record = @record.checkouts.find_all_by_end_time(nil).first
+                 if open_record.nil?
+                   puts "The record #{@the_line} has no corresponding checkout. No records were created."
+                   @errors << @the_line
+                 else   
+                   Checkout.update(open_record.id, :end_time => get_time(line[0]))
+                   puts "The end time for #{open_record.id} was updated."
+                 end
+               end   
+            end   
+          end        
         rescue CSV::MalformedCSVError
           @errors << @the_line
           next
