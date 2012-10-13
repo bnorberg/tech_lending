@@ -103,7 +103,7 @@ namespace :db do
             end
           else  
             @record = Item.find_by_call_number(line[9])
-            puts @record.inspect
+            puts @record.inspect  
             if @record.nil?
                 @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7])
                 @i.created_at = Time.now.strftime('%B %Y')
