@@ -893,7 +893,7 @@ namespace :db do
                         end
                       end
                     else  
-                      if @record.nil?
+                      if @record.nil  
                         @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
                         @i.created_at = Time.now.strftime('%B %Y')
                         @i.updated_at = Time.now
