@@ -72,7 +72,7 @@ namespace :db do
                    co.updated_at = Time.now
                    co.save      
                  else
-                   @co = Checkoutfind_by_identifier(line[0])
+                   @co = Checkout.find_by_transaction_id(line[0])
                    if @co.nil?
                      co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                       :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
@@ -95,7 +95,7 @@ namespace :db do
                     co.updated_at = Time.now
                     co.save      
                   else
-                    @co = Checkoutfind_by_identifier(line[0])
+                    @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                        :patron_status => line[4].delete('PE'), :patron_college => get_status(line[2]), :renewals => 0)
@@ -141,7 +141,7 @@ namespace :db do
                        co.save
                      end          
                    else
-                     @co = Checkoutfind_by_identifier(line[0])
+                     @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        if line[2] == 'PGNCSUSTAFF'
                          co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
@@ -163,9 +163,8 @@ namespace :db do
                            co.updated_at = Time.now
                            co.save
                          end 
-                       elsif line[2] == 'PGTRLN-NCCU'  
-                           co = Checkout.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                           co = @i.checkouts.create(:date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                       elsif line[2] == 'PGTRLN-NCCU'
+                           co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                                     :patron_status => line[4].delete('PE'), :patron_college => get_status(line[2]), :renewals => 0)
                            co.created_at = Time.now.strftime('%B %Y')
                            co.updated_at = Time.now
@@ -202,7 +201,7 @@ namespace :db do
                           co.save
                         end      
                      else
-                       @co = Checkoutfind_by_identifier(line[0])
+                       @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           if line[2].include? '-'
                             co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
@@ -234,8 +233,6 @@ namespace :db do
                         co.updated_at = Time.now
                         co.save  
                       else
-                        @co = Checkoutfind_by_identifier(line[0])
-                         if @co.nil?
                         co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                                :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
                         co.created_at = Time.now.strftime('%B %Y')
@@ -243,7 +240,7 @@ namespace :db do
                         co.save
                       end      
                     else
-                      @co = Checkoutfind_by_identifier(line[0])
+                      @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         if line[2].include? '-'
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
@@ -280,7 +277,7 @@ namespace :db do
                     co.updated_at = Time.now
                     co.save      
                  else
-                   @co = Checkoutfind_by_identifier(line[0])
+                   @co = Checkout.find_by_transaction_id(line[0])
                    if @co.nil?
                       co = Checkout.create(:transaction_id => line[0],:item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                        :patron_status => 'Test Circ', :patron_college => 'N/A', :renewals => 0)
@@ -304,7 +301,7 @@ namespace :db do
                      co.updated_at = Time.now
                      co.save      
                    else
-                     @co = Checkoutfind_by_identifier(line[0])
+                     @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                          co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                           :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
@@ -327,7 +324,7 @@ namespace :db do
                       co.updated_at = Time.now
                       co.save      
                     else
-                      @co = Checkoutfind_by_identifier(line[0])
+                      @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                          :patron_status => line[4].delete('PE'), :patron_college => 'N/A', :renewals => 0)
@@ -350,7 +347,7 @@ namespace :db do
                       co.updated_at = Time.now
                       co.save      
                     else
-                      @co = Checkoutfind_by_identifier(line[0])
+                      @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                            :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
@@ -379,7 +376,7 @@ namespace :db do
                  co.updated_at = Time.now
                  co.save 
                else
-                 @co = Checkoutfind_by_identifier(line[0])
+                 @co = Checkout.find_by_transaction_id(line[0])
                  if @co.nil?
                    co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                            :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
@@ -406,7 +403,7 @@ namespace :db do
                      co.updated_at = Time.now
                      co.save 
                    else
-                     @co = Checkoutfind_by_identifier(line[0])
+                     @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                            :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
@@ -430,7 +427,7 @@ namespace :db do
                       co.updated_at = Time.now
                       co.save 
                     else
-                      @co = Checkoutfind_by_identifier(line[0])
+                      @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                             :patron_status => line[5].sub('PE', ''), :patron_college => line[4], :renewals => 0)
@@ -454,7 +451,7 @@ namespace :db do
                         co.updated_at = Time.now
                         co.save 
                       else
-                        @co = Checkoutfind_by_identifier(line[0])
+                        @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                               :patron_status => line[2].delete('PH'), :patron_college => line[4], :renewals => 0)
@@ -477,7 +474,7 @@ namespace :db do
                         co.updated_at = Time.now
                         co.save 
                       else
-                        @co = Checkoutfind_by_identifier(line[0])
+                        @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                           :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
@@ -502,7 +499,7 @@ namespace :db do
                      co.updated_at = Time.now
                      co.save 
                    else
-                     @co = Checkoutfind_by_identifier(line[0])
+                     @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                            :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
@@ -534,7 +531,7 @@ namespace :db do
                        co.save
                      end      
                    else
-                     @co = Checkoutfind_by_identifier(line[0])
+                     @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        if line[5] == 'PEGRAD'
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
@@ -579,7 +576,7 @@ namespace :db do
                       co.save
                    end
                   else
-                   @co = Checkoutfind_by_identifier(line[0])
+                   @co = Checkout.find_by_transaction_id(line[0])
                    if @co.nil?
                      if line[5] == 'PESPECUG' or line[5] == 'PEGRAD'
                        co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
@@ -620,7 +617,7 @@ namespace :db do
                    co.updated_at = Time.now
                    co.save 
                  else
-                   @co = Checkoutfind_by_identifier(line[0])
+                   @co = Checkout.find_by_transaction_id(line[0])
                    if @co.nil?
                      co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                                    :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
@@ -702,7 +699,7 @@ namespace :db do
                   co.save
                 end      
               else
-                @co = Checkoutfind_by_identifier(line[0])
+                @co = Checkout.find_by_transaction_id(line[0])
                 if @co.nil?
                   if line[6] == 'PEUNDERGRAD'
                     co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
@@ -711,8 +708,7 @@ namespace :db do
                     co.updated_at = Time.now
                     co.save
                   elsif line[6] == 'PEFACULTY'
-                      co = Checkout.create(:transaction_id => line[0], :item_id => @record.id,:date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                      co = @i.checkouts.create(:date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                      co = Checkout.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                               :patron_status => line[6].delete('PE'), :patron_college => 'N/A', :renewals => 0)
                       co.created_at = Time.now.strftime('%B %Y')
                       co.updated_at = Time.now
@@ -761,7 +757,7 @@ namespace :db do
                   co.updated_at = Time.now
                   co.save 
                 else
-                  @co = Checkoutfind_by_identifier(line[0])
+                  @co = Checkout.find_by_transaction_id(line[0])
                   if @co.nil?
                     co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                       :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0)
@@ -785,7 +781,7 @@ namespace :db do
                     co.updated_at = Time.now
                     co.save 
                   else
-                    @co = Checkoutfind_by_identifier(line[0])
+                    @co = Checkout.find_by_transaction_id(line[0])
                     if @co.nil?
                       co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                       :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0)
@@ -809,7 +805,7 @@ namespace :db do
                       co.updated_at = Time.now
                       co.save 
                     else
-                      @co = Checkoutfind_by_identifier(line[0])
+                      @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                       :patron_status => "#{line[6].delete('PE') + '-' + line[2].sub('PH', '')}", :patron_college => 'N/A', :renewals => 0)
@@ -833,7 +829,7 @@ namespace :db do
                         co.updated_at = Time.now
                         co.save 
                       else
-                        @co = Checkoutfind_by_identifier(line[0])
+                        @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                       :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0)
@@ -856,7 +852,7 @@ namespace :db do
                         co.updated_at = Time.now
                         co.save 
                       else
-                        @co = Checkoutfind_by_identifier(line[0])
+                        @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                       :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0)
@@ -881,7 +877,7 @@ namespace :db do
                         co.updated_at = Time.now
                         co.save 
                       else
-                        @co = Checkoutfind_by_identifier(line[0])
+                        @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                         :patron_status => get_status(line[3]), :patron_college => line[5], :renewals => 0)
@@ -893,7 +889,7 @@ namespace :db do
                         end
                       end
                     else  
-                      if @record.nil  
+                      if @record.nil?  
                         @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
                         @i.created_at = Time.now.strftime('%B %Y')
                         @i.updated_at = Time.now
@@ -904,7 +900,7 @@ namespace :db do
                         co.updated_at = Time.now
                         co.save 
                       else
-                        @co = Checkoutfind_by_identifier(line[0])
+                        @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                       :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
