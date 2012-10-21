@@ -930,34 +930,44 @@ namespace :db do
               puts "The record #{@the_line} has no corresponding checkout. No records were created."
               @errors << @the_line
             else
-              open_record = @record.checkouts.find_all_by_end_time(nil).first
-              if open_record.nil?
-                record = @record.checkouts.last
-                Checkout.update(record.id, :renewals => record.renewals + 1)
-                puts "Renewals for #{record.id} were updated."
-              else  
-                Checkout.update(open_record.id, :renewals => open_record.renewals + 1)
-                puts "Renewals for #{open_record.id} were updated."
-              end  
+              @co = Checkout.find_by_transaction_id(line[0])
+              if @co.nil?
+                open_record = @record.checkouts.find_all_by_end_time(nil).first
+                if open_record.nil?
+                  record = @record.checkouts.last
+                  Checkout.update(record.id, :renewals => record.renewals + 1)
+                  puts "Renewals for #{record.id} were updated."
+                else  
+                  Checkout.update(open_record.id, :renewals => open_record.renewals + 1)
+                  puts "Renewals for #{open_record.id} were updated."
+                end 
+              else
+                puts "The record #{@the_line} already exists. No records were created."
+              end   
             end 
           elsif line[1].match /^S\d\dEV.*\z/
-            @record = Item.find_by_call_number(line[2])
-            if @record.nil?
-              puts "The record #{@the_line} has no corresponding checkout. No records were created."
+            @co = Checkout.find_by_transaction_id(line[0])
+            if @co.nil?
+              @record = Item.find_by_call_number(line[2])
+              if @record.nil?
+                puts "The record #{@the_line} has no corresponding checkout. No records were created."
+              else
+                if line[3] == 'ILLOST-PAID'
+                   puts "This is not a circulation."
+                else   
+                   open_record = @record.checkouts.find_all_by_end_time(nil).first
+                   if open_record.nil?
+                     puts "The record #{@the_line} has no corresponding checkout. No records were created."
+                     @errors << @the_line
+                   else   
+                     Checkout.update(open_record.id, :end_time => get_time(line[0]))
+                     puts "The end time for #{open_record.id} was updated."
+                   end
+                end   
+              end
             else
-              if line[3] == 'ILLOST-PAID'
-                 puts "This is not a circulation."
-               else   
-                 open_record = @record.checkouts.find_all_by_end_time(nil).first
-                 if open_record.nil?
-                   puts "The record #{@the_line} has no corresponding checkout. No records were created."
-                   @errors << @the_line
-                 else   
-                   Checkout.update(open_record.id, :end_time => get_time(line[0]))
-                   puts "The end time for #{open_record.id} was updated."
-                 end
-               end   
-            end   
+              puts "The record #{@the_line} already exists. No records were created."
+            end     
           end        
         rescue CSV::MalformedCSVError
           @errors << @the_line

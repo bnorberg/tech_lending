@@ -1,29 +1,89 @@
-<h1>Listing items</h1>
-
-<table>
+<%= search_form_for @q do |f| %>
+<div id="search">
+ <div id="item_info">
+ <h2>Search By Item Info</h2>
+ <p> <%= f.label "Call Number" %>
+  <%= f.select :call_number_eq, Item. get_item_call_number,:include_blank => true, :size => 20 %></p>
+ <p> <%= f.label "Item" %>
+  <%= f.text_field :name_cont, :size => 20 %></p>
+ </div>
+ <div id="patron_info">
+ <h2>Search By Patron Info</h2>
+ <p> <%= f.label "Status" %>
+  <%= f.select :checkouts_patron_status_eq, Item.get_patron_status, :include_blank => true %></p>
+  <p><%= f.label "College" %>
+  <%= f.select :checkouts_patron_college_eq, Item.get_patron_college, :include_blank => true %></p>
+ </div>
+ <div id="date_received">
+ <h2>Search By Checkout Info</h2>
+ <p> <%= f.label "Date" %>
+  <%= f.text_field :checkouts_date_eq, :size => 10 %></p>
+  <%= f.label "Date Range " %><%= f.text_field :checkouts_date_gteq , :size => 10 %><%= f.text_field :checkouts_date_lteq, :size => 10 %>
+ </div>
+</div>
+<div id="buttons">
+ <div class="example1" id="submit_search"> <%= f.submit %></div> <div class="example1"><span><%= link_to "Clear Search", items_path %></span></div> <div class="example1"><span><%= link_to "Download Results", :action => "index", :q => params[:q], :format => :csv %></span></div>
+</div>
+<% end %>
+<div id="body">
+<h2><span style="color:red">Number of Items: <%= @items.count %></span></h2>
+<p><%= will_paginate @items %></p>
+<% if @items.empty? %>
+  <h2> <span style="font-size:18pt; color:grey">There are no letters that match you query</span></h2>
+<% else %>
+<p>Sort By:
+ <%= sort_link @q, :date, "Date" %>
+<table id="main">
   <tr>
-    <th>Id</th>
-    <th>Call number</th>
-    <th>Name</th>
+    <th>Item</th>
+	<th>Call Number</th>
     <th>Location</th>
-    <th></th>
-    <th></th>
-    <th></th>
-  </tr>
-
+  </tr>	
 <% @items.each do |item| %>
-  <tr>
-    <td><%= item.id %></td>
-    <td><%= item.call_number %></td>
-    <td><%= item.name %></td>
-    <td><%= item.location %></td>
-    <td><%= link_to 'Show', item %></td>
-    <td><%= link_to 'Edit', edit_item_path(item) %></td>
-    <td><%= link_to 'Destroy', item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+  <tr class="<%= cycle("even", "odd") %>">
+    <td><%= item.call_number.sub("IQ", "") %></td>
+	<td><%= item.call_number %></td>
+    <td><%= item.location.sub("UM", "") %></td>
+    <% if !item.checkouts.empty? %>
+	  <tr>
+	    <td class="record_link"><a href="#record">Checkouts: <%= item.checkouts.count %></a>
+	   	<br/>
+	    <%= item.checkouts.first.date %>-<%= item.checkouts.last.date %>
+	 	</td>
+	  </tr>    
+	  <tr id="<%= item.id.to_s %>" style="display: none">
+      	<td class="new_table">
+	    	<table>
+		    	<tr>
+			    	<th>Checkout Date</th>
+					<th>Start Time</th>
+					<th>End Time</th>
+					<th>Patron Status</th>
+					<th>Patron College</th>
+					<th>Renewals</th>
+					<th>Duration</th>
+			    </tr>  
+			    <% item.checkouts.each do |co| %> 
+			    	<tr>
+				    	<td><%= co.date %></td>
+					    <td><%= co.start_time.strftime("%I:%M%p") %></td>
+						<% if !co.end_time.nil? %>
+				        	<td><%= co.end_time.strftime("%I:%M%p") %></td>
+						<% else %>
+							<td><%= co.end_time %></td>
+						<% end %>	
+				        <td><%= co.patron_status %></td>
+				        <td><%= co.patron_college %></td>
+				        <td><%= co.renewals %></td>
+				        <td><%= co.duration %></td>
+			      	</tr>
+	     		<% end %>
+	   		</table>
+		</td>
+	  </tr> 
+	  <% end %>
   </tr>
 <% end %>
 </table>
-
-<br />
-
-<%= link_to 'New Item', new_item_path %>
+</div>
+<% end %>
