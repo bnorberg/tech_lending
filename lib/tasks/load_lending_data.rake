@@ -33,8 +33,10 @@ namespace :db do
       def get_status(s)
         if s.include? '-'
           status = s.split('-')[1]
+        elsif s.include? 'PG'
+          status = s.sub('PG', '')
         else
-          status = s.delete('PG')
+          status = s.sub('PH', '')  
         end    
         status
       end  
@@ -54,7 +56,7 @@ namespace :db do
       file.each do |l|
         begin 
           @the_line = l
-          line = CSV.parse_line(@the_line, {:col_sep => '^', :encoding => 'n'})
+          line = CSV.parse_line(@the_line, {:col_sep => '^', :encoding => 'r:ISO-8859-15:UTF-8'})
           if line[1].match /^S\d\dCV.*\z/
            if line[5] == 'UTCHECKEDOUT'
              if line[7].match /^UB.*\z/
@@ -62,46 +64,28 @@ namespace :db do
                puts @record.inspect
                if line[4] == 'PEGRAD'
                  if @record.nil?
-                   @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6]) 
-                   @i.created_at = Time.now.strftime('%B %Y')
-                   @i.updated_at = Time.now
-                   @i.save
+                   @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
-                   co.created_at = Time.now.strftime('%B %Y')
-                   co.updated_at = Time.now
-                   co.save      
+                                          :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)     
                  else
                    @co = Checkout.find_by_transaction_id(line[0])
                    if @co.nil?
                      co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                      :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
-                     co.created_at = Time.now.strftime('%B %Y')
-                     co.updated_at = Time.now
-                     co.save
+                                      :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                     else
                       puts "The record #{@the_line} already exists. No records were created."
                     end   
                  end
                elsif line[2].include? 'PGTRLN'
                  if @record.nil?
-                    @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6]) 
-                    @i.created_at = Time.now.strftime('%B %Y')
-                    @i.updated_at = Time.now
-                    @i.save
+                    @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                     co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                           :patron_status => line[4].delete('PE'), :patron_college => get_status(line[2]), :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save      
+                                           :patron_status => line[4].delete('PE'), :patron_college => get_status(line[2]), :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)      
                   else
                     @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                       :patron_status => line[4].delete('PE'), :patron_college => get_status(line[2]), :renewals => 0)
-                       co.created_at = Time.now.strftime('%B %Y')
-                       co.updated_at = Time.now
-                       co.save
+                                       :patron_status => line[4].delete('PE'), :patron_college => get_status(line[2]), :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      else
                        puts "The record #{@the_line} already exists. No records were created."
                      end      
@@ -109,72 +93,42 @@ namespace :db do
                else
                  if line[3] == 'UJDELINQUENT'
                    if @record.nil?
-                     @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6]) 
-                     @i.created_at = Time.now.strftime('%B %Y')
-                     @i.updated_at = Time.now
-                     @i.save
+                     @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      if line[2] == 'PGNCSUSTAFF'
                        co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                              :patron_status => line[2].delete('PG'), :patron_college => 'N/A', :renewals => 0)
-                       co.created_at = Time.now.strftime('%B %Y')
-                       co.updated_at = Time.now
-                       co.save
+                                              :patron_status => line[2].delete('PG'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      elsif line[2] == 'PHVISNOPAY' 
                       if line[5] == 'PESTAFF' 
                        co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                 :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                       co.created_at = Time.now.strftime('%B %Y')
-                       co.updated_at = Time.now
-                       co.save 
+                                                 :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                       elsif line[5] == 'PEGRAD'
                         co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                  :patron_status => line[5].delete('PE'), :patron_college => line[4], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save
+                                                  :patron_status => line[5].delete('PE'), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       end
                      else
                        co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                       co.created_at = Time.now.strftime('%B %Y')
-                       co.updated_at = Time.now
-                       co.save
+                                                :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      end          
                    else
                      @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        if line[2] == 'PGNCSUSTAFF'
                          co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                 :patron_status => line[2].delete('PG'), :patron_college => 'N/A', :renewals => 0)
-                         co.created_at = Time.now.strftime('%B %Y')
-                         co.updated_at = Time.now
-                         co.save
+                                                 :patron_status => line[2].delete('PG'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                        elsif line[2] == 'PHVISNOPAY'
                          if line[5] == 'PESTAFF' 
                            co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                  :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                           co.created_at = Time.now.strftime('%B %Y')
-                           co.updated_at = Time.now
-                           co.save 
+                                                  :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                          elsif line[5] == 'PEGRAD'
                            co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                   :patron_status => line[5].delete('PE'), :patron_college => line[4], :renewals => 0)
-                           co.created_at = Time.now.strftime('%B %Y')
-                           co.updated_at = Time.now
-                           co.save
+                                                   :patron_status => line[5].delete('PE'), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                          end 
                        elsif line[2] == 'PGTRLN-NCCU'
                            co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                    :patron_status => line[4].delete('PE'), :patron_college => get_status(line[2]), :renewals => 0)
-                           co.created_at = Time.now.strftime('%B %Y')
-                           co.updated_at = Time.now
-                           co.save       
+                                                    :patron_status => line[4].delete('PE'), :patron_college => get_status(line[2]), :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)     
                        else
                          co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                   :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                         co.created_at = Time.now.strftime('%B %Y')
-                         co.updated_at = Time.now
-                         co.save
+                                                   :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                        end
                      else
                        puts "The record #{@the_line} already exists. No records were created."
@@ -183,77 +137,61 @@ namespace :db do
                  else   
                    if line[4] == 'PEUNDERGRAD'
                      if @record.nil?
-                        @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6]) 
-                        @i.created_at = Time.now.strftime('%B %Y')
-                        @i.updated_at = Time.now
-                        @i.save
+                        @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         if line[2].include? '-'
                           co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                               :patron_status => line[4].sub('PE', ''), :patron_college => 'N/A', :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save  
+                                               :patron_status => line[4].sub('PE', ''), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                         else
                           co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                    :patron_status => line[4].sub('PE', ''), :patron_college => 'N/A', :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
+                                                    :patron_status => line[4].sub('PE', ''), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         end      
                      else
                        @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           if line[2].include? '-'
                             co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                    :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                            co.created_at = Time.now.strftime('%B %Y')
-                            co.updated_at = Time.now
-                            co.save
+                                                    :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                           else
                             co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                       :patron_status => line[4].sub('PE', ''), :patron_college => line[3], :renewals => 0)
-                            co.created_at = Time.now.strftime('%B %Y')
-                            co.updated_at = Time.now
-                            co.save
+                                                       :patron_status => line[4].sub('PE', ''), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                           end
                         else  
                           puts "The record #{@the_line} already exists. No records were created." 
                         end
-                     end  
+                     end
+                   elsif line[4] =='PEFRIENDS'
+                     if @record.nil?
+                         @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                         co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                     :patron_status => "#{line[4].sub('PE', '') + '-' + line[2].sub('PG', '')}", :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)    
+                      else
+                        @co = Checkout.find_by_transaction_id(line[0])
+                         if @co.nil?
+                            co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                        :patron_status => "#{line[4].sub('PE', '') + '-' + line[2].sub('PG', '')}", :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                         else  
+                           puts "The record #{@the_line} already exists. No records were created." 
+                         end
+                      end   
                    else    
                     if @record.nil?
-                      @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6]) 
-                      @i.created_at = Time.now.strftime('%B %Y')
-                      @i.updated_at = Time.now
-                      @i.save
+                      @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       if line[2].include? '-'
                         co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                            :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save  
+                                            :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)  
                       else
                         co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                               :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save
+                                               :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       end      
                     else
                       @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         if line[2].include? '-'
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                               :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save  
+                                               :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)  
                         else
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                  :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
+                                                  :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         end
                       else
                         puts "The record #{@the_line} already exists. No records were created."
@@ -267,23 +205,14 @@ namespace :db do
                puts @record.inspect
                if line[4] == 'PECIRCSTUD'
                  if @record.nil?
-                    @i = Item.create(:call_number => line[7], :name => get_name(line[7]),:location => line[6]) 
-                    @i.created_at = Time.now.strftime('%B %Y')
-                    @i.updated_at = Time.now
-                    @i.save
+                    @i = Item.create(:call_number => line[7], :name => get_name(line[7]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                     co = @i.checkouts.create(:transaction_id => line[0],:date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                         :patron_status => 'Test Circ', :patron_college => 'N/A', :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save      
+                                         :patron_status => 'Test Circ', :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)     
                  else
                    @co = Checkout.find_by_transaction_id(line[0])
                    if @co.nil?
                       co = Checkout.create(:transaction_id => line[0],:item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                       :patron_status => 'Test Circ', :patron_college => 'N/A', :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
-                      co.save
+                                       :patron_status => 'Test Circ', :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                    else
                      puts "The record #{@the_line} already exists. No records were created."
                    end   
@@ -291,69 +220,42 @@ namespace :db do
                else  
                  if line[4] == 'PEGRAD'
                    if @record.nil?
-                     @i = Item.create(:call_number => line[7], :name => get_name(line[7]),:location => line[6]) 
-                     @i.created_at = Time.now.strftime('%B %Y')
-                     @i.updated_at = Time.now
-                     @i.save
+                     @i = Item.create(:call_number => line[7], :name => get_name(line[7]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
-                     co.created_at = Time.now.strftime('%B %Y')
-                     co.updated_at = Time.now
-                     co.save      
+                                          :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)      
                    else
                      @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                          co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
-                         co.created_at = Time.now.strftime('%B %Y')
-                         co.updated_at = Time.now
-                         co.save
+                                          :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       else
                           puts "The record #{@the_line} already exists. No records were created."
                       end
                    end
                  elsif line[4] == 'PESTAFF'
                    if @record.nil?
-                      @i = Item.create(:call_number => line[7], :name => get_name(line[7]),:location => line[6]) 
-                      @i.created_at = Time.now.strftime('%B %Y')
-                      @i.updated_at = Time.now
-                      @i.save
+                      @i = Item.create(:call_number => line[7], :name => get_name(line[7]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                           :patron_status => line[4].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
-                      co.save      
+                                           :patron_status => line[4].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)      
                     else
                       @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                         :patron_status => line[4].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save
+                                         :patron_status => line[4].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       else
                         puts "The record #{@the_line} already exists. No records were created."
                       end  
                     end
                  elsif line[4] == 'PEUNDERGRAD'
                     if @record.nil?
-                      @i = Item.create(:call_number => line[7], :name => get_name(line[7]),:location => line[6]) 
-                      @i.created_at = Time.now.strftime('%B %Y')
-                      @i.updated_at = Time.now
-                      @i.save
+                      @i = Item.create(:call_number => line[7], :name => get_name(line[7]),:location => line[6], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                             :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
-                      co.save      
+                                             :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)      
                     else
                       @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                           :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save
+                                           :patron_status => line[4].delete('PE'), :patron_college => line[3], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       else
                         puts "The record #{@the_line} already exists. No records were created."
                       end
@@ -366,23 +268,14 @@ namespace :db do
               @record = Item.find_by_call_number(line[8])
                puts @record.inspect
                if @record.nil?
-                 @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[7])
-                 @i.created_at = Time.now.strftime('%B %Y')
-                 @i.updated_at = Time.now
-                 @i.save
+                 @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                  co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                 :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                 co.created_at = Time.now.strftime('%B %Y')
-                 co.updated_at = Time.now
-                 co.save 
+                                                 :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                else
                  @co = Checkout.find_by_transaction_id(line[0])
                  if @co.nil?
                    co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                           :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                   co.created_at = Time.now.strftime('%B %Y')
-                   co.updated_at = Time.now
-                   co.save
+                                           :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                  else
                    puts "The record #{@the_line} already exists. No records were created."
                  end
@@ -393,23 +286,14 @@ namespace :db do
                 puts @record.inspect
                 if line[5] == 'PEFACULTY' or line[5] == 'PESTAFF'
                   if @record.nil?
-                     @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7])
-                     @i.created_at = Time.now.strftime('%B %Y')
-                     @i.updated_at = Time.now
-                     @i.save
+                     @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                               :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                     co.created_at = Time.now.strftime('%B %Y')
-                     co.updated_at = Time.now
-                     co.save 
+                                               :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                    else
                      @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                           :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                       co.created_at = Time.now.strftime('%B %Y')
-                       co.updated_at = Time.now
-                       co.save
+                                           :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                     else
                        puts "The record #{@the_line} already exists. No records were created."
                     end  
@@ -417,23 +301,15 @@ namespace :db do
                 elsif line[5] == 'PEUNDERGRAD'
                   if line[2] == 'P4PROTECT'
                     if @record.nil?
-                      @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7])
-                      @i.created_at = Time.now.strftime('%B %Y')
-                      @i.updated_at = Time.now
-                      @i.save
+                      @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                :patron_status => line[5].sub('PE', ''), :patron_college => line[4], :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
+                                                :patron_status => line[5].sub('PE', ''), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       co.save 
                     else
                       @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                            :patron_status => line[5].sub('PE', ''), :patron_college => line[4], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save
+                                            :patron_status => line[5].sub('PE', ''), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       else
                         puts "The record #{@the_line} already exists. No records were created."
                       end
@@ -441,46 +317,28 @@ namespace :db do
                   else
                     if line[2] == 'PHNCSU-DIST'
                       if @record.nil?
-                        @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7])
-                        @i.created_at = Time.now.strftime('%B %Y')
-                        @i.updated_at = Time.now
-                        @i.save
+                        @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                  :patron_status => line[2].delete('PH'), :patron_college => line[4], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save 
+                                                  :patron_status => line[2].delete('PH'), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                       else
                         @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                              :patron_status => line[2].delete('PH'), :patron_college => line[4], :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
+                                              :patron_status => line[2].delete('PH'), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         else
                           puts "The record #{@the_line} already exists. No records were created."
                         end
                       end 
                     else      
                       if @record.nil?
-                        @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7])
-                        @i.created_at = Time.now.strftime('%B %Y')
-                        @i.updated_at = Time.now
-                        @i.save
+                        @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                              :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save 
+                                              :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                       else
                         @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
+                                          :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         else
                           puts "The record #{@the_line} already exists. No records were created."
                         end
@@ -489,23 +347,14 @@ namespace :db do
                   end  
                 elsif line[2] == 'PHVISNOPAY' or line[2] == 'PHNOPAY'
                    if @record.nil?
-                     @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7])
-                     @i.created_at = Time.now.strftime('%B %Y')
-                     @i.updated_at = Time.now
-                     @i.save
+                     @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                               :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                     co.created_at = Time.now.strftime('%B %Y')
-                     co.updated_at = Time.now
-                     co.save 
+                                               :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                    else
                      @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                           :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                       co.created_at = Time.now.strftime('%B %Y')
-                       co.updated_at = Time.now
-                       co.save
+                                           :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      else
                        puts "The record #{@the_line} already exists. No records were created."
                      end
@@ -513,38 +362,23 @@ namespace :db do
                 else
                  if line[2] == 'PHNCSU-DIST' or line[3] == 'PHNCSU-DIST'
                    if @record.nil?
-                     @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7])
-                     @i.created_at = Time.now.strftime('%B %Y')
-                     @i.updated_at = Time.now
-                     @i.save
+                     @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      if line[5] == 'PEGRAD'
                        co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                 :patron_status => "#{line[5].delete('PE') + '-' + line[2].delete('PH')}", :patron_college => line[4], :renewals => 0)
-                       co.created_at = Time.now.strftime('%B %Y')
-                       co.updated_at = Time.now
-                       co.save 
+                                                 :patron_status => "#{line[5].delete('PE') + '-' + line[2].delete('PH')}", :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                      else
                        co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                   :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0)
-                       co.created_at = Time.now.strftime('%B %Y')
-                       co.updated_at = Time.now
-                       co.save
+                                                   :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      end      
                    else
                      @co = Checkout.find_by_transaction_id(line[0])
                      if @co.nil?
                        if line[5] == 'PEGRAD'
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                    :patron_status => "#{line[5].delete('PE') + '-' + line[2].delete('PH')}", :patron_college => line[4], :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save 
+                                                    :patron_status => "#{line[5].delete('PE') + '-' + line[2].delete('PH')}", :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                        else
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                      :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
+                                                      :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                        end
                      else
                         puts "The record #{@the_line} already exists. No records were created."
@@ -552,50 +386,32 @@ namespace :db do
                    end 
                  else    
                   if @record.nil?
-                   @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7])
-                   @i.created_at = Time.now.strftime('%B %Y')
-                   @i.updated_at = Time.now
-                   @i.save
+                   @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                   elsif line[2] == 'PHSTAFF'
+                       co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                    :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                    if line[5] == 'PESPECUG' or line[5] == 'PEGRAD'
                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                               :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                     co.created_at = Time.now.strftime('%B %Y')
-                     co.updated_at = Time.now
-                     co.save
+                                               :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                    elsif line[5] == 'PESTAFF'
                       co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                   :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
-                      co.save
+                                                   :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                    else
                       co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                     :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
-                      co.save
+                                                     :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                    end
                   else
                    @co = Checkout.find_by_transaction_id(line[0])
                    if @co.nil?
                      if line[5] == 'PESPECUG' or line[5] == 'PEGRAD'
                        co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                  :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save
+                                                  :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      elsif line[5] == 'PESTAFF'
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                       :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save  
+                                                       :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)  
                      else
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                    :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save
+                                                    :patron_status => line[5].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                      end
                    else
                       puts "The record #{@the_line} already exists. No records were created."
@@ -606,316 +422,244 @@ namespace :db do
               else
                  @record = Item.find_by_call_number(line[8])
                  puts @record.inspect
-                 if @record.nil?
-                   @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[7])
-                   @i.created_at = Time.now.strftime('%B %Y')
-                   @i.updated_at = Time.now
-                   @i.save
-                   co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                     :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                   co.created_at = Time.now.strftime('%B %Y')
-                   co.updated_at = Time.now
-                   co.save 
-                 else
-                   @co = Checkout.find_by_transaction_id(line[0])
-                   if @co.nil?
-                     co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                   :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0)
-                     co.created_at = Time.now.strftime('%B %Y')
-                     co.updated_at = Time.now
-                     co.save
+                 if line[5] == 'PESTAFF'
+                   if @record.nil?
+                     @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                     co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                       :patron_status => line[5].sub('PE', ''), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                    else
-                     puts "The record #{@the_line} already exists. No records were created."
+                     @co = Checkout.find_by_transaction_id(line[0])
+                     if @co.nil?
+                       co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                     :patron_status => line[5].sub('PE', ''), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                     else
+                       puts "The record #{@the_line} already exists. No records were created."
+                     end
                    end
-                 end  
+                 else
+                    if @record.nil?
+                       @i = Item.create(:call_number => line[8], :name => get_name(line[8]),:location => line[7], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                       co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                         :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
+                    else
+                       @co = Checkout.find_by_transaction_id(line[0])
+                       if @co.nil?
+                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                       :patron_status => get_status(line[2]), :patron_college => line[4], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                       else
+                         puts "The record #{@the_line} already exists. No records were created."
+                       end
+                     end
+                 end    
               end   
             end  
            elsif line[7] == 'UTCHECKEDOUT'
-            if line[3] == 'PHVISNOPAY' or line[4] == 'UJDELINQUENT'
-              @record = Item.find_by_call_number(line[10])
-              puts @record.inspect
-              if @record.nil?
-                @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
-                @i.created_at = Time.now.strftime('%B %Y')
-                @i.updated_at = Time.now
-                @i.save
-                if line[6] == 'PEUNDERGRAD'
-                  if line[3] == 'PHNCSU-DIST'
-                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                            :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
-                  else  
-                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
-                  end  
-                elsif line[6] == 'PEFACULTY'
-                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                            :patron_status => line[6].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save   
-                elsif line[3] == 'PHSTAFF'
-                  if line[2].include? 'PGNCSU'
-                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
-                  else  
-                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => line[2].delete('PG'), :patron_college => 'N/A', :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
-                  end
-                elsif line[3] == 'PHNCSU-DIST'
-                  co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0)
-                  co.created_at = Time.now.strftime('%B %Y')
-                  co.updated_at = Time.now
-                  co.save 
-                elsif line[2] == 'PHSTAFF'
-                  co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0)
-                  co.created_at = Time.now.strftime('%B %Y')
-                  co.updated_at = Time.now
-                  co.save
-                elsif line[3] == 'P4PROTECT' or line[3] == 'PHVISNOPAY'
-                  co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0)
-                  co.created_at = Time.now.strftime('%B %Y')
-                  co.updated_at = Time.now
-                  co.save 
-                else
-                  co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
-                  co.created_at = Time.now.strftime('%B %Y')
-                  co.updated_at = Time.now
-                  co.save
-                end      
-              else
-                @co = Checkout.find_by_transaction_id(line[0])
-                if @co.nil?
-                  if line[6] == 'PEUNDERGRAD'
-                    co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                      :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
-                  elsif line[6] == 'PEFACULTY'
-                      co = Checkout.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                              :patron_status => line[6].delete('PE'), :patron_college => 'N/A', :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
-                      co.save  
-                  elsif line[3] == 'PHSTAFF'
-                    co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                            :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
-                  elsif line[3] == 'P4PROTECT' or line[3] == 'PHVISNOPAY'
-                    co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                            :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save  
-                  elsif line[3] == 'PHNCSU-DIST'
-                    co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                              :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
-                  else
-                    co = Checkout.create(:item_id => @record.id, :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                            :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
-                  end
-                else
-                   puts "The record #{@the_line} already exists. No records were created."
-                end        
-              end
-            else  
-              @record = Item.find_by_call_number(line[10])
-              puts @record.inspect
-              if line[3] == 'PHNCSU-DIST'
+            if !line[10].match /^IS\d*\z/  
+              if line[3] == 'PHVISNOPAY' or line[4] == 'UJDELINQUENT'
+                @record = Item.find_by_call_number(line[10])
+                puts @record.inspect
                 if @record.nil?
-                  @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
-                  @i.created_at = Time.now.strftime('%B %Y')
-                  @i.updated_at = Time.now
-                  @i.save
-                  co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0)
-                  co.created_at = Time.now.strftime('%B %Y')
-                  co.updated_at = Time.now
-                  co.save 
+                  @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                  if line[6] == 'PEUNDERGRAD'
+                    if line[3] == 'PHNCSU-DIST'
+                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                              :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                    else  
+                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                    end  
+                  elsif line[6] == 'PEFACULTY'
+                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                              :patron_status => line[6].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)   
+                  elsif line[3] == 'PHSTAFF'
+                    if line[2].include? 'PGNCSU'
+                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                    else  
+                      co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => line[2].delete('PG'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                    end
+                  elsif line[3] == 'PHNCSU-DIST'
+                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                  elsif line[2] == 'PHSTAFF'
+                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                  elsif line[3] == 'P4PROTECT' or line[3] == 'PHVISNOPAY'
+                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
+                  else
+                    co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                  end      
                 else
                   @co = Checkout.find_by_transaction_id(line[0])
                   if @co.nil?
-                    co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                      :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save
+                    if line[6] == 'PEUNDERGRAD'
+                      co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                        :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                    elsif line[6] == 'PEFACULTY'
+                        co = Checkout.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                :patron_status => line[6].delete('PE'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)  
+                    elsif line[3] == 'PHSTAFF'
+                      co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                              :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                    elsif line[3] == 'P4PROTECT' or line[3] == 'PHVISNOPAY'
+                      co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                              :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)  
+                    elsif line[3] == 'PHNCSU-DIST'
+                      co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                                :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                    else
+                      co = Checkout.create(:item_id => @record.id, :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                              :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                    end
                   else
-                    puts "The record #{@the_line} already exists. No records were created."
-                  end
+                     puts "The record #{@the_line} already exists. No records were created."
+                  end        
                 end
-              else
-                if line[3] == 'PHUNDERGRAD' or line[3] == 'PHSTAFF'
+              else  
+                @record = Item.find_by_call_number(line[10])
+                puts @record.inspect
+                if line[3] == 'PHNCSU-DIST'
                   if @record.nil?
-                    @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
-                    @i.created_at = Time.now.strftime('%B %Y')
-                    @i.updated_at = Time.now
-                    @i.save
+                    @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                     co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0)
-                    co.created_at = Time.now.strftime('%B %Y')
-                    co.updated_at = Time.now
-                    co.save 
+                                            :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                   else
                     @co = Checkout.find_by_transaction_id(line[0])
                     if @co.nil?
                       co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                      :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
-                      co.save
+                                        :patron_status => "#{line[3].delete('PH') + '-' + get_status(line[2])}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                     else
                       puts "The record #{@the_line} already exists. No records were created."
                     end
                   end
                 else
-                  if line[2] == 'PHPOSTDOC'
+                  if line[3] == 'PHUNDERGRAD' or line[3] == 'PHSTAFF'
                     if @record.nil?
-                      @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
-                      @i.created_at = Time.now.strftime('%B %Y')
-                      @i.updated_at = Time.now
-                      @i.save
+                      @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => "#{line[6].delete('PE') + '-' + line[2].sub('PH', '')}", :patron_college => 'N/A', :renewals => 0)
-                      co.created_at = Time.now.strftime('%B %Y')
-                      co.updated_at = Time.now
-                      co.save 
+                                            :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                     else
                       @co = Checkout.find_by_transaction_id(line[0])
                       if @co.nil?
                         co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                      :patron_status => "#{line[6].delete('PE') + '-' + line[2].sub('PH', '')}", :patron_college => 'N/A', :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save
+                                        :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       else
                         puts "The record #{@the_line} already exists. No records were created."
                       end
                     end
-                  elsif line[3] == 'P4PROTECT'
-                    if line[6] == 'PESPECUG'      
+                  else
+                    if line[2] == 'PHPOSTDOC'
                       if @record.nil?
-                        @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
-                        @i.created_at = Time.now.strftime('%B %Y')
-                        @i.updated_at = Time.now
-                        @i.save
+                        @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save 
+                                            :patron_status => "#{line[6].delete('PE') + '-' + line[2].sub('PH', '')}", :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
                       else
                         @co = Checkout.find_by_transaction_id(line[0])
                         if @co.nil?
                           co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                      :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
+                                        :patron_status => "#{line[6].delete('PE') + '-' + line[2].sub('PH', '')}", :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         else
                           puts "The record #{@the_line} already exists. No records were created."
                         end
                       end
-                    else
-                      if @record.nil?
-                        @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
-                        @i.created_at = Time.now.strftime('%B %Y')
-                        @i.updated_at = Time.now
-                        @i.save
-                        co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save 
-                      else
-                        @co = Checkout.find_by_transaction_id(line[0])
-                        if @co.nil?
-                          co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                      :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
+                    elsif line[3] == 'P4PROTECT'
+                      if line[6] == 'PESPECUG'      
+                        if @record.nil?
+                          @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                         else
-                          puts "The record #{@the_line} already exists. No records were created."
+                          @co = Checkout.find_by_transaction_id(line[0])
+                          if @co.nil?
+                            co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                        :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          else
+                            puts "The record #{@the_line} already exists. No records were created."
+                          end
+                        end
+                      else
+                        if @record.nil?
+                          @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                        else
+                          @co = Checkout.find_by_transaction_id(line[0])
+                          if @co.nil?
+                            co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                        :patron_status => line[2].delete('PH'), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          else
+                            puts "The record #{@the_line} already exists. No records were created."
+                          end
+                        end
+                      end    
+                    else
+                      if line[2].match /^UZ.*\z/
+                        if @record.nil?
+                          @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                              :patron_status => get_status(line[3]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
+                        else
+                          @co = Checkout.find_by_transaction_id(line[0])
+                          if @co.nil?
+                            co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                          :patron_status => get_status(line[3]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          else
+                            puts "The record #{@the_line} already exists. No records were created."
+                          end
+                        end
+                      elsif line[6] == 'PEGRAD'  
+                        if @record.nil?  
+                          @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => "#{line[6].delete('PE') + '-' + line[2].sub('PG', '')}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
+                        else
+                          @co = Checkout.find_by_transaction_id(line[0])
+                          if @co.nil?
+                            co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                        :patron_status => "#{line[6].delete('PE') + '-' + line[2].sub('PG', '')}", :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          else
+                            puts "The record #{@the_line} already exists. No records were created."
+                          end
+                        end
+                      else  
+                        if @record.nil?  
+                          @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                            :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now) 
+                        else
+                          @co = Checkout.find_by_transaction_id(line[0])
+                          if @co.nil?
+                            co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                        :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                          else
+                            puts "The record #{@the_line} already exists. No records were created."
+                          end
                         end
                       end
                     end    
+                  end
+                end  
+              end
+            else
+              @record = Item.find_by_call_number(line[9])
+              puts @record.inspect
+              if @record.nil?
+                @i = Item.create(:call_number => line[9], :name => get_name(line[9]),:location => line[8], :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                  :patron_status => line[6].sub('PE',''), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                else
+                  @co = Checkout.find_by_transaction_id(line[0])
+                  if @co.nil?
+                    co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
+                                :patron_status => line[6].sub('PE',''), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                   else
-                    if line[2].match /^UZ.*\z/
-                      if @record.nil?
-                        @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
-                        @i.created_at = Time.now.strftime('%B %Y')
-                        @i.updated_at = Time.now
-                        @i.save
-                        co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                            :patron_status => get_status(line[3]), :patron_college => line[5], :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save 
-                      else
-                        @co = Checkout.find_by_transaction_id(line[0])
-                        if @co.nil?
-                          co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                        :patron_status => get_status(line[3]), :patron_college => line[5], :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
-                        else
-                          puts "The record #{@the_line} already exists. No records were created."
-                        end
-                      end
-                    else  
-                      if @record.nil?  
-                        @i = Item.create(:call_number => line[10], :name => get_name(line[10]),:location => line[8])
-                        @i.created_at = Time.now.strftime('%B %Y')
-                        @i.updated_at = Time.now
-                        @i.save
-                        co = @i.checkouts.create(:transaction_id => line[0], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                          :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
-                        co.created_at = Time.now.strftime('%B %Y')
-                        co.updated_at = Time.now
-                        co.save 
-                      else
-                        @co = Checkout.find_by_transaction_id(line[0])
-                        if @co.nil?
-                          co = Checkout.create(:transaction_id => line[0], :item_id => @record.id, :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                      :patron_status => get_status(line[2]), :patron_college => 'N/A', :renewals => 0)
-                          co.created_at = Time.now.strftime('%B %Y')
-                          co.updated_at = Time.now
-                          co.save
-                        else
-                          puts "The record #{@the_line} already exists. No records were created."
-                        end
-                      end
-                    end
-                  end    
-                end
-              end  
-            end  
+                    puts "The record #{@the_line} already exists. No records were created."
+                  end
+                end  
+            end      
            else
              if line[3] == 'ILLOST-PAID'
                puts "This is not a circulation."
@@ -944,7 +688,7 @@ namespace :db do
               else
                 puts "The record #{@the_line} already exists. No records were created."
               end   
-            end 
+            end
           elsif line[1].match /^S\d\dEV.*\z/
             @co = Checkout.find_by_transaction_id(line[0])
             if @co.nil?
@@ -953,24 +697,24 @@ namespace :db do
                 puts "The record #{@the_line} has no corresponding checkout. No records were created."
               else
                 if line[3] == 'ILLOST-PAID'
-                   puts "This is not a circulation."
+                  puts "This is not a circulation."
                 else   
-                   open_record = @record.checkouts.find_all_by_end_time(nil).first
-                   if open_record.nil?
-                     puts "The record #{@the_line} has no corresponding checkout. No records were created."
-                     @errors << @the_line
-                   else   
-                     Checkout.update(open_record.id, :end_time => get_time(line[0]))
-                     puts "The end time for #{open_record.id} was updated."
-                   end
+                  open_record = @record.checkouts.find_all_by_end_time(nil).first
+                  if open_record.nil?
+                    puts "The record #{@the_line} has no corresponding checkout. No records were created."
+                    @errors << @the_line
+                  else   
+                    Checkout.update(open_record.id, :end_time => get_time(line[0]))
+                    puts "The end time for #{open_record.id} was updated."
+                  end
                 end   
               end
             else
               puts "The record #{@the_line} already exists. No records were created."
             end     
-          end        
-        rescue CSV::MalformedCSVError
-          @errors << @the_line
+          end
+          rescue CSV::MalformedCSVError
+            @errors << @the_line
           next
         end       
       end                   
