@@ -2,12 +2,31 @@ class ItemsController < ApplicationController
   # GET /items
   # GET /items.json
   def index
-    @items = Item.all
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @items }
-    end
+      require 'csv'
+      respond_to do |format|
+        format.html do # index.html.erb
+           @q = Item.includes(:checkouts).search(params[:q])
+           @items = @q.result(:distinct => true).paginate(:page =>params[:page], :per_page => 25)  
+        end   
+        format.json { render :json => @letters }
+        format.csv do
+  	      @items = @q.result
+         	csv_string = CSV.generate do |csv|
+        	   #header
+        	   csv << ["call number", "location", "checkout date", "start time", "end time", "patron status", "patron college", "renewals"]
+        	   @items.each do |item|
+        	     if !item.checkouts.empty?
+        	       item.checkouts.each do |co|
+                   #data rows
+              		 csv << [item.call_number, item.location, co.date, co.start_time, co.end_time, co.patron_status, co.patron_college, co.renewals]
+            	   end 
+               end
+             end
+        	end
+            #send to browser
+    	      send_data csv_string, :type =>'text/csv; charset=iso-8859-1; header=present', :disposition => "attachment; filename=letters.csv"
+        end	
+      end
   end
 
   # GET /items/1
