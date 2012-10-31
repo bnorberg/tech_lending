@@ -3,7 +3,7 @@
  <div id="item_info">
  <h2>Search By Item Info</h2>
  <p> <%= f.label "Call Number" %>
-  <%= f.select :call_number_eq, Item. get_item_call_number,:include_blank => true, :size => 20 %></p>
+  <%= f.select :call_number_eq, Item. get_item_call_number, :size => 20 %></p>
 </div>
 <!-- 
 <p> <%= f.label "Item" %>
@@ -30,33 +30,94 @@
 <% end %>
 <div id="body">
 <h2><span style="color:red">Number of Items: <%= @items.count %></span></h2>
-<p><%= will_paginate @items %></p>
 <% if @items.empty? %>
   <h2> <span style="font-size:18pt; color:grey">There are no letters that match you query</span></h2>
 <% else %>
 <!--<p>Sort By:
  <%= sort_link @q, :date, "Date" %> -->
+
 <% @items.each do |item| %>
-<div id="orders_chart" style="width: 560px; height: 300px;">
+<div id="item_checkout" style='width: 1750px; height: 700px;'>
 	<script type="text/javascript" charset="utf-8">
 	  $(function () {
 	    new Highcharts.Chart({
-		    chart: { renderTo: 'orders_chart' },
+		    chart: { renderTo: 'item_checkout' },
 		    title: { text: 'Checkouts over Time' },
 		    xAxis: { type: 'datetime' },
 		    yAxis: {
+			  min: 0,
+			  tickInterval: 1,
 		      title: { text: 'Checkouts'}
 		    },
 		    series: [{
-			  pointInterval: 4320 * 3600 * 1000,
-			  pointStart: Date.UTC(2009, 0, 01),
-		      data: <%= item.checkouts.map {|date}
+			  	name: 'Checkouts',
+				pointInterval: 24 * 3600 * 1000,
+				pointStart: Date.UTC(<%= item.checkouts.first.date.to_time.to_s.split(' ')[0].gsub('-', ', ' ) %>),
+		      	data: <%= (item.checkouts.first.date..item.checkouts.last.date).map { |date| item.checkouts.where(:date => date).count}.inspect %>
 		    }]
 		  });
 		});
 	</script>
 	
 </div>
+<div id='status_chart' style='width: 1750px; height: 700px;'>
+	<script type='text/javascript' charset='utf-8'>
+	$(function () {
+	    new Highcharts.Chart({
+	            chart: {
+	                renderTo: 'status_chart',
+	                type: 'column',
+	                margin: [ 50, 50, 100, 80]
+	            },
+	            title: {
+	                text: 'Checkouts By Status'
+	            },
+	            xAxis: {
+	                categories: ['3CED', '4ROTECT', 'C', 'DIST', 'FACSOUS', 'FACULTY', 'FACULTY-POSTDOC', 'FR', 'FSU', 'GNCSU-SR', 'GRAD', 'GRAD-NCSU-DIST', 'HFACULTY', 'HNOAY', 'HRAD', 'HSTAFF', 'HUNDERRAD', 'HVISNOAY', 'INDIVD', 'JR', 'NCSU-DIST', 'NCSU-DIST-FR', 'NCSU-DIST-JR', 'NCSU-DIST-SO', 'NCSU-DIST-SR', 'NCSUSTAFF', 'NOAY', 'RISD', 'SCUG', 'SHAW', 'SO', 'SR', 'STAFF', 'STEORE', 'TM', 'TRLN', 'Test Circ', 'UNCSYS', 'UNDERGRAD', 'UNDRGRAD', 'UNIVAFFIL', 'UZ1/3/50321', 'UZ2/26/50349', 'UZ6/6/1990', 'VISNOAY'],
+	                labels: {
+	                    rotation: -45,
+	                    align: 'right',
+	                    style: {
+	                        fontSize: '13px',
+	                        fontFamily: 'Verdana, sans-serif'
+	                    }
+	                }
+	            },
+	            yAxis: {
+	                min: 0,
+	                title: {
+	                    text: 'Number of Checkouts'
+	                }
+	            },
+	            legend: {
+	                enabled: false
+	            },
+	            tooltip: {
+	                formatter: function() {
+	                    return '<b>'+ this.x +'</b><br/>'+
+	                        'Checkouts: '+ Highcharts.numberFormat(this.y, 0);
+	                }
+	            },
+	            series: [{
+	                name: 'Status',
+	                data:  <%= ['3CED', '4ROTECT', 'C', 'DIST', 'FACSOUS', 'FACULTY', 'FACULTY-POSTDOC', 'FR', 'FSU', 'GNCSU-SR', 'GRAD', 'GRAD-NCSU-DIST', 'HFACULTY', 'HNOAY', 'HRAD', 'HSTAFF', 'HUNDERRAD', 'HVISNOAY', 		'INDIVD', 'JR', 'NCSU-DIST', 'NCSU-DIST-FR', 'NCSU-DIST-JR', 'NCSU-DIST-SO', 'NCSU-DIST-SR', 'NCSUSTAFF', 'NOAY', 'RISD', 'SCUG', 'SHAW', 'SO', 'SR', 'STAFF', 'STEORE', 'TM', 'TRLN', 'Test Circ', 'UNCSYS', 'UNDERGRAD', 'UNDRGRAD', 'UNIVAFFIL', 'UZ1/3/50321', 'UZ2/26/50349', 'UZ6/6/1990', 'VISNOAY'].map { |status| item.checkouts.where(:patron_status =>status).count}.inspect %>,
+	                dataLabels: {
+	                    enabled: true,
+	                    rotation: -90,
+	                    color: '#FFFFFF',
+	                    align: 'right',
+	                    x: 4,
+	                    y: 10,
+	                    style: {
+	                        fontSize: '13px',
+	                        fontFamily: 'Verdana, sans-serif'
+	                    }
+	                }
+	            }]
+	        });
+	    });
+	
+	</script>
 <table id="main">
   <tr>
     <th>Item</th>

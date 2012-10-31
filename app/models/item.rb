@@ -39,6 +39,7 @@ class Item < ActiveRecord::Base
         Item.all.each do |item|
           item.checkouts do |co|
             @dates << co.date
+          end  
         end
         @cos.uniq
     end

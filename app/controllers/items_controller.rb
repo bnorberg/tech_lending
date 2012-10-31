@@ -6,11 +6,11 @@ class ItemsController < ApplicationController
       respond_to do |format|
         format.html do # index.html.erb
            @q = Item.includes(:checkouts).search(params[:q])
-           @items = @q.result(:distinct => true).paginate(:page =>params[:page], :per_page => 25)  
+           @items = @q.result(:distinct => true) 
         end   
         format.json { render :json => @letters }
         format.csv do
-  	      @items = @q.result
+  	      @items = @q.result(:distinct => true)
          	csv_string = CSV.generate do |csv|
         	   #header
         	   csv << ["call number", "location", "checkout date", "start time", "end time", "patron status", "patron college", "renewals"]
