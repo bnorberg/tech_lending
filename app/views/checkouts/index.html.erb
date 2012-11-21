@@ -1,9 +1,35 @@
-<h1>Listing checkouts</h1>
+<%= search_form_for @q do |f| %>
+<div id="search">
+ <div id="item_info">
+ 	<h2>Search By Item Info</h2>
+ 		<p> <%= f.label "Item Name Contains" %>
+  		<%= f.text_field :call_number_cont, :size => 20 %></p>
+ </div>
+ <div id="patron_info">
+ 	<h2>Search By Patron Info</h2>
+ 	<p> <%= f.label "Status" %><%= f.select :patron_status_eq, ["FACULTY", "FR", "GRAD", "GRAD-NCSU-DIST", "JR", "NCSU-DIST-FR", "NCSU-DIST-JR", "NCSU-DIST-SO", "NCSU-DIST-SR", "SO", "SR", "STAFF", "TRLN", "UNDERGRAD"], :include_blank => true %></p>
+  	<p><%= f.label "College" %><%= f.select :patron_college_eq, ['UNCHASS', 'UNMGMT', 'UNENGR'], :include_blank => true %></p>
+ </div>
+ <div id="date_received">
+ 	<h2>Search By Checkout Info</h2>
+ 	<p> <%= f.label "Date" %><%= f.text_field :date_eq, :size => 10 %></p>
+  	<p><%= f.label "Date Range " %><%= f.text_field :date_gteq , :size => 10 %><%= f.text_field :date_lteq, :size => 10 %>
+ </div>
+</div>
+<div id="buttons">
+ <div class="example1" id="submit_search"> <%= f.submit %></div> <div class="example1"><span><%= link_to "Clear Search", checkouts_path %></span></div> <div class="example1"><span><%= link_to "Download Results", :action => "index", :q => params[:q], :format => :csv %></span></div>
+</div>
+<% end %>
+<div id="body">
+<h2><span style="color:red">Number of Checkouts: <%= @checkouts.count %></span></h2>
+<% if @checkouts.empty? %>
+  <h2> <span style="font-size:18pt; color:grey">There are no checkouts that match your query</span></h2>
+<% else %>
+<p>Sort By: <%= sort_link @q, :date, "Date" %></p>
 
 <table>
   <tr>
-    <th>Id</th>
-    <th>Item</th>
+    <th>Call Number</th>
     <th>Date</th>
     <th>Start time</th>
     <th>End time</th>
@@ -16,8 +42,9 @@
     <th></th>
   </tr>
 <p><%= will_paginate @checkouts %></p>
-
-<div id='checkouts_chart' style='width: 1750px; height: 700px;'>
+<h2>View Charts</h2>
+<%= link_to_function "Checkouts Over Time", "$('#checkouts_chart').toggle()" %> | <%= link_to_function "Checkouts By Patron Status", "$('#status_chart').toggle()" %><br />
+<div id='checkouts_chart' style='width: 1750px; height: 700px; display:none'>
 	<script type='text/javascript' charset='utf-8'>
 	  $(function () {
 	    new Highcharts.Chart({
@@ -39,13 +66,14 @@
 			  name: 'Checkouts',
 			  pointInterval: 24 * 3600 * 1000,
 			  pointStart: Date.UTC(2010, 07, 10),
-		      data: <%= ((Date.new(2012,10,24) - 806).to_date..(Date.new(2012,10,24) - 35).to_date).map { |date| Checkout.total_on(date)}.inspect %>
+		      data: <%= ((Date.new(2012,10,24) - 806).to_date..(Date.new(2012,10,24) - 35).to_date).map { |date| @checkouts.where(:date => date).count}.inspect %>
 		    }]
 		  });
 		});
 	</script>
 	</div>
-	<div id='status_chart' style='width: 1750px; height: 700px;'>
+	<br />
+	<div id='status_chart' style='width: 1750px; height: 700px; display:none'>
 		<script type='text/javascript' charset='utf-8'>
 		$(function () {
 		    new Highcharts.Chart({
@@ -58,7 +86,7 @@
 		                text: 'Checkouts By Status'
 		            },
 		            xAxis: {
-		                categories: ['3CED', '4ROTECT', 'C', 'DIST', 'FACSOUS', 'FACULTY', 'FACULTY-POSTDOC', 'FR', 'FSU', 'GNCSU-SR', 'GRAD', 'GRAD-NCSU-DIST', 'HFACULTY', 'HNOAY', 'HRAD', 'HSTAFF', 'HUNDERRAD', 'HVISNOAY', 'INDIVD', 'JR', 'NCSU-DIST', 'NCSU-DIST-FR', 'NCSU-DIST-JR', 'NCSU-DIST-SO', 'NCSU-DIST-SR', 'NCSUSTAFF', 'NOAY', 'RISD', 'SCUG', 'SHAW', 'SO', 'SR', 'STAFF', 'STEORE', 'TM', 'TRLN', 'Test Circ', 'UNCSYS', 'UNDERGRAD', 'UNDRGRAD', 'UNIVAFFIL', 'UZ1/3/50321', 'UZ2/26/50349', 'UZ6/6/1990', 'VISNOAY'],
+		                categories: ["FACULTY", "FR", "GRAD", "GRAD-NCSU-DIST", "JR", "NCSU-DIST-FR", "NCSU-DIST-JR", "NCSU-DIST-SO", "NCSU-DIST-SR", "SO", "SR", "STAFF", "TRLN", "UNDERGRAD"],
 		                labels: {
 		                    rotation: -45,
 		                    align: 'right',
@@ -85,7 +113,7 @@
 		            },
 		            series: [{
 		                name: 'Status',
-		                data:  <%= ['3CED', '4ROTECT', 'C', 'DIST', 'FACSOUS', 'FACULTY', 'FACULTY-POSTDOC', 'FR', 'FSU', 'GNCSU-SR', 'GRAD', 'GRAD-NCSU-DIST', 'HFACULTY', 'HNOAY', 'HRAD', 'HSTAFF', 'HUNDERRAD', 'HVISNOAY', 		'INDIVD', 'JR', 'NCSU-DIST', 'NCSU-DIST-FR', 'NCSU-DIST-JR', 'NCSU-DIST-SO', 'NCSU-DIST-SR', 'NCSUSTAFF', 'NOAY', 'RISD', 'SCUG', 'SHAW', 'SO', 'SR', 'STAFF', 'STEORE', 'TM', 'TRLN', 'Test Circ', 'UNCSYS', 'UNDERGRAD', 'UNDRGRAD', 'UNIVAFFIL', 'UZ1/3/50321', 'UZ2/26/50349', 'UZ6/6/1990', 'VISNOAY'].map { |status| Checkout.status_total(status)}.inspect %>,
+		                data:  <%= ["FACULTY", "FR", "GRAD", "GRAD-NCSU-DIST", "JR", "NCSU-DIST-FR", "NCSU-DIST-JR", "NCSU-DIST-SO", "NCSU-DIST-SR", "SO", "SR", "STAFF", "TRLN", "UNDERGRAD"].map { |status| @checkouts.where(:patron_status =>status).count}.inspect %>,
 		                dataLabels: {
 		                    enabled: true,
 		                    rotation: -90,
@@ -167,8 +195,7 @@
 	
 <% @checkouts.each do |checkout| %>
   <tr>
-    <td><%= checkout.id %></td>
-    <td><%= checkout.item_id %></td>
+    <td><%= checkout.call_number %></td>
     <td><%= checkout.date %></td>
     <td><%= checkout.start_time %></td>
     <td><%= checkout.end_time %></td>
@@ -182,7 +209,7 @@
   </tr>
 <% end %>
 </table>
-
+<% end %>
 <br />
 
 <%= link_to 'New Checkout', new_checkout_path %>

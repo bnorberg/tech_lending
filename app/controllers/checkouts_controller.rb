@@ -1,12 +1,26 @@
 class CheckoutsController < ApplicationController
   # GET /checkouts
   # GET /checkouts.json
-  def index
-    @checkouts = Checkout.paginate(:page =>params[:page], :per_page => 25)  
-
+  def index  
+    require 'csv'
+    @q = Checkout.search(params[:q])
+    @checkouts = @q.result(:distinct => true).paginate(:page =>params[:page], :per_page => 25)
     respond_to do |format|
-      format.html # index.html.erb
-      format.json { render json: @checkouts }
+      format.html # index.html.erb  
+      format.json { render :json => @checkouts }
+      format.csv do
+	      @checkouts = @q.result(:distinct => true)
+       	csv_string = CSV.generate do |csv|
+      	   #header
+      	   csv << ["call number", "checkout date", "start time", "end time", "patron status", "patron college", "renewals"]
+      	   @checkouts.each do |co|
+            #data rows
+        		 csv << [co.call_number, co.date, co.start_time, co.end_time, co.patron_status, co.patron_college, co.renewals]
+           end
+      	end
+          #send to browser
+  	        send_data csv_string, :type =>'text/csv; charset=iso-8859-1; header=present', :disposition => "attachment; filename=checkouts.csv"
+      end	
     end
   end
 

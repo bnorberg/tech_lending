@@ -3,12 +3,11 @@ class ItemsController < ApplicationController
   # GET /items.json
   def index
       require 'csv'
+      @q = Item.includes(:checkouts).search(params[:q])
+      @items = @q.result(:distinct => true)
       respond_to do |format|
-        format.html do # index.html.erb
-           @q = Item.includes(:checkouts).search(params[:q])
-           @items = @q.result(:distinct => true) 
-        end   
-        format.json { render :json => @letters }
+        format.html # index.html.erb
+        format.json { render :json => @checkouts }
         format.csv do
   	      @items = @q.result(:distinct => true)
          	csv_string = CSV.generate do |csv|
