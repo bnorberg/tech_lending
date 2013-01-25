@@ -1,12 +1,13 @@
 source 'https://rubygems.org'
 
-gem 'rails', '3.2.8'
+gem 'rails', '3.2.11'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 #gem 'sqlite3'
-gem 'mysql2'
+#gem 'mysql2'
+gem 'pg'
 gem 'ransack'
 gem 'will_paginate', '~> 3.0.0'
 gem 'thin'
@@ -25,6 +26,7 @@ end
 
 gem 'jquery-rails', '~> 2.1'
 gem "highcharts-rails", "~> 2.3.0"
+gem 'time_diff'
 
 # To use ActiveModel has_secure_password
 # gem 'bcrypt-ruby', '~> 3.0.0'

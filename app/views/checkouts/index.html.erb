@@ -27,7 +27,7 @@
 <% else %>
 <p>Sort By: <%= sort_link @q, :date, "Date" %></p>
 
-<table>
+<table id="main">
   <tr>
     <th>Call Number</th>
     <th>Date</th>
@@ -37,9 +37,6 @@
     <th>Patron status</th>
     <th>Patron college</th>
     <th>Renewals</th>
-    <th></th>
-    <th></th>
-    <th></th>
   </tr>
 <p><%= will_paginate @checkouts %></p>
 <h2>View Charts</h2>
@@ -53,7 +50,6 @@
 		    xAxis: { type: 'datetime' },
 		    yAxis: {
 			  min: 0,
-			  tickInterval: 100,
 		      title: { text: 'Checkouts'}
 		    },
 			tooltip: {
@@ -132,69 +128,9 @@
 		
 		</script>
 		</div>
-		<!--
-		<div id='college_chart' style='width: 1750px; height: 700px;'>
-			<script type='text/javascript' charset='utf-8'>
-			$(function () {
-			    new Highcharts.Chart({
-			            chart: {
-			                renderTo: 'college_chart',
-			                type: 'column',
-			                margin: [ 50, 50, 100, 80]
-			            },
-			            title: {
-			                text: 'Checkouts By Status'
-			            },
-			            xAxis: {
-			                categories: ['N/A', 'NCCU', 'PECRCLIB', 'PEFRIENDS', 'PESTAFF', 'PEUNCSYS', 'PEUNDERGRAD', 'UJOK', 'UN040101', 'UN056401', 'UN056601', 'UN056901', 'UN081601', 'UN083001', 'UN085001', 'UN110103', 'UN110901', 'UN111101', 'UN111501', 'UN112101', 'UN118401', 'UN139001', 'UN140888', 'UN140901', 'UN141188', 'UN143201', 'UN143401', 'UN148501', 'UN150201', 'UN160101', 'UN162701', 'UN164501', 'UN169914', 'UN186401', 'UN190101', 'UN192001', 'UN194001', 'UN196001', 'UN200201', 'UN202001', 'UN222201', 'UN250101', 'UN252401', 'UN258401', 'UN320101', 'UN443401', 'UN443501', 'UN443601', 'UN447601', 'UN471501', 'UN491501', 'UN512001', 'UN513001', 'UN514001', 'UN517101', 'UNAA', 'UNAAMS', 'UNACCBS', 'UNACQ', 'UNAD', 'UNADE', 'UNADEMED', 'UNADEMS', 'UNADMR', 'UNADNB', 'UNADS-CIRC', 'UNAE', 'UNAEBS', 'UNAEE', 'UNAEEMS', 'UNAEMS', 'UNAEPHD', 'UNAEU', 'UNAFSBA', 'UNAGBAAS', 'UNAGBUSBS', 'UNAGC', 'UNAGE', 'UNAGEDBS', 'UNAGEVTBS', 'UNAGI', 'UNAGRONBS', 'UNAGSBS', 'UNAGSCI', 'UNAMA', 'UNAMAMS', 'UNAMAPHD', 'UNAMATHBS', 'UNAMM', 'UNANA', 'UNANAPHD', 'UNANM', 'UNANPPHD', 'UNANS', 'UNANSCBS', 'UNANSGM', 'UNANSMR', 'UNANT', 'UNANTHBA', 'UNANTMA', 'UNAPSOCBS', 'UNARC', 'UNARCMR', 'UNARTAPBA', 'UNARTM', 'UNASM', 'UNATE', 'UNAYM', 'UNBAE', 'UNBAEMS', 'UNBBSBS', 'UNBCH', 'UNBCHPHD', 'UNBEBS', 'UNBEU', 'UNBIM', 'UNBIOCHBS', 'UNBIOSCBS', 'UNBLM', 'UNBMA', 'UNBMAPHD', 'UNBME', 'UNBMEBS', 'UNBMEMS', 'UNBMEPHD', 'UNBMEU', 'UNBMM', 'UNBOTNYBS', 'UNBTECM', 'UNBUSBS', 'UNBUSEDBS', 'UNCALS', 'UNCAM', 'UNCBE', 'UNCBEMR', 'UNCBEPHD', 'UNCBS', 'UNCBSPHD', 'UNCCE', 'UNCCS', 'UNCCTCTG', 'UNCE', 'UNCEA', 'UNCEAMED', 'UNCEBS', 'UNCED', 'UNCEDCTG', 'UNCEDMED', 'UNCEDPHD', 'UNCEDUC', 'UNCEL', 'UNCEMBS', 'UNCEMR', 'UNCEMS', 'UNCEMU', 'UNCEPHD', 'UNCERT', 'UNCES', 'UNCEU', 'UNCH', 'UNCHASS', 'UNCHEBS', 'UNCHEGM', 'UNCHEMBA', 'UNCHEMBS', 'UNCHEU', 'UNCHL', 'UNCHMS', 'UNCHPHD', 'UNCHS', 'UNCI', 'UNCIGM', 'UNCIM', 'UNCIMED', 'UNCIPPHD', 'UNCIT', 'UNCLM', 'UNCN', 'UNCNCMS', 'UNCNEMS', 'UNCNM', 'UNCNR', 'UNCOE', 'UNCOM', 'UNCOMBA', 'UNCOMMS', 'UNCPE', 'UNCPEBS', 'UNCPEMS', 'UNCPEPHD', 'UNCPEU', 'UNCPM', 'UNCRD', 'UNCRDPHD', 'UNCRIMBS', 'UNCRIMNBA', 'UNCS', 'UNCSC', 'UNCSCBS', 'UNCSCMS', 'UNCSCPHD', 'UNCSCU', 'UNCSM', 'UNCSMR', 'UNCSMS', 'UNCSP', 'UNCSPHD', 'UNCSPMR', 'UNCWM', 'UNDAECTG', 'UNDASA', 'UNDDN', 'UNDDNPHD', 'UNDN', 'UNDNM', 'UNDSBA', 'UNDSM', 'UNDSR', 'UNDUAP', 'UNDUK', 'UNDVM', 'UNEA', 'UNEAS', 'UNEC', 'UNECAMA', 'UNECAMR', 'UNECAMS', 'UNECAPHD', 'UNECLMA', 'UNECLMR', 'UNECLPHD', 'UNECM', 'UNECONBA', 'UNECONBS', 'UNECR', 'UNECRMFA', 'UNEDAB', 'UNEDGENBS', 'UNEDUD', 'UNEDUN', 'UNEE', 'UNEEBS', 'UNEEMS', 'UNEEPHD', 'UNEEU', 'UNELMEDBS', 'UNENE', 'UNENEBS', 'UNENEMR', 'UNENEU', 'UNENG', 'UNENGLBA', 'UNENGLBS', 'UNENGLM', 'UNENGMA', 'UNENGR', 'UNENSCIBS', 'UNENT', 'UNENTOMOLOGY', 'UNENVSCBS', 'UNENVTBS', 'UNEPSE', 'UNERP', 'UNERPPHD', 'UNETC', 'UNETCMS', 'UNETHM', 'UNETM', 'UNEU', 'UNEVM', 'UNEXTEDBS', 'UNEXTEDM', 'UNFCS', 'UNFCTAAS', 'UNFEM', 'UNFGM', 'UNFLF', 'UNFLFMA', 'UNFLGBA', 'UNFLL', 'UNFLM', 'UNFLS', 'UNFLSMA', 'UNFM', 'UNFMBMR', 'UNFMMR', 'UNFOODSBS', 'UNFOR', 'UNFORMS', 'UNFORMTBS', 'UNFORPHD', 'UNFPS', 'UNFPSPHD', 'UNFRM', 'UNFRNCHBA', 'UNFRNCHM', 'UNFS', 'UNFSCM', 'UNFSM', 'UNFSMR', 'UNFSMS', 'UNFSPHD', 'UNFTMBS', 'UNFW', 'UNFWAMS', 'UNFWFMS', 'UNFWFPHD', 'UNFWSCIBS', 'UNFWVPHD', 'UNFYC', 'UNGB', 'UNGBMR', 'UNGBPHD', 'UNGBSPHD', 'UNGCERT', 'UNGD', 'UNGDB', 'UNGDMR', 'UNGEOLBA', 'UNGEOLBS', 'UNGF', 'UNGFGPHD', 'UNGFMS', 'UNGIM', 'UNGIMMR', 'UNGISMR', 'UNGIST', 'UNGM', 'UNGN', 'UNGNAAAS', 'UNGNM', 'UNGNMR', 'UNGTCCTU', 'UNGTECTU', 'UNGTN', 'UNGTS', 'UNHED', 'UNHEDEDD', 'UNHEDMED', 'UNHI', 'UNHIGM', 'UNHIM', 'UNHIMA', 'UNHISTBA', 'UNHISTBS', 'UNHLTHM', 'UNHMM', 'UNHORTBS', 'UNHR', 'UNHRMS', 'UNHS', 'UNHSM', 'UNHSMR', 'UNHSMS', 'UNHSPHD', 'UNHSSUD', 'UNICT', 'UNID', 'UNIDB', 'UNIDMR', 'UNIE', 'UNIEBS', 'UNIEGM', 'UNIEM', 'UNIEMR', 'UNIEMS', 'UNIEP', 'UNIEPHD', 'UNIEU', 'UNII', 'UNIM', 'UNIMIMR', 'UNIMS', 'UNIMSMR', 'UNIMVPHD', 'UNINTGM', 'UNINTSTBA', 'UNISM', 'UNITM', 'UNJOM', 'UNJPM', 'UNLAP', 'UNLAR', 'UNLARB', 'UNLARMR', 'UNLIFSC', 'UNLJM', 'UNLND', 'UNLPMAAS', 'UNLPSBA', 'UNLS', 'UNLSMBS', 'UNMA', 'UNMAA', 'UNMAC', 'UNMACMR', 'UNMAGM', 'UNMAM', 'UNMAMS', 'UNMAPHD', 'UNMARSCBS', 'UNMAT', 'UNMATHBS', 'UNMATMA', 'UNMB', 'UNMBA', 'UNMBAMR', 'UNMBGM', 'UNMBIOBS', 'UNMBM', 'UNMBT', 'UNMBTMR', 'UNME', 'UNMEA', 'UNMEAMS', 'UNMEAPHD', 'UNMEBS', 'UNMED', 'UNMEDMED', 'UNMEDMS', 'UNMEMS', 'UNMEPHD', 'UNMER', 'UNMETBS', 'UNMEU', 'UNMGMT', 'UNMGMTUD', 'UNMIDEDBS', 'UNMIS', 'UNMISMR', 'UNMLESTM', 'UNMOBCTG', 'UNMSA', 'UNMSE', 'UNMSEBS', 'UNMSEGM', 'UNMSEMR', 'UNMSEPHD', 'UNMSEU', 'UNMSW', 'UNMSWMR', 'UNMTHEDBS', 'UNMUM', 'UNNATREBS', 'UNNATRLBS', 'UNNCC', 'UNND', 'UNNDS', 'UNNE', 'UNNEBS', 'UNNEMS', 'UNNEPHD', 'UNNEU', 'UNNLGMED', 'UNNPCCTG', 'UNNPM', 'UNNR', 'UNNRFMR', 'UNNRFMS', 'UNNROMS', 'UNNSEA', 'UNNSEB', 'UNNT', 'UNNTAMS', 'UNNTFGM', 'UNNTFMR', 'UNNTRUD', 'UNNTSBS', 'UNOLM', 'UNOLTAS', 'UNOR', 'UNORIMR', 'UNORIMS', 'UNORIPHD', 'UNORMMS', 'UNORMR', 'UNORMS', 'UNORPHD', 'UNOSM', 'UNPA', 'UNPAC', 'UNPAMR', 'UNPAMS', 'UNPAMSU', 'UNPB', 'UNPBBS', 'UNPBM', 'UNPBMS', 'UNPBPHD', 'UNPBS', 'UNPCCBS', 'UNPCM', 'UNPEA', 'UNPGMBS', 'UNPH', 'UNPHAMR', 'UNPHILBA', 'UNPHILBS', 'UNPHM', 'UNPHMA', 'UNPHPMR', 'UNPHPMS', 'UNPHVMR', 'UNPHY', 'UNPHYSBA', 'UNPHYSBS', 'UNPLTRYBS', 'UNPP', 'UNPPGCTG', 'UNPPT', 'UNPRM', 'UNPRMED', 'UNPRT', 'UNPRTBS', 'UNPRTMR', 'UNPRTMS', 'UNPRTPHD', 'UNPRVET', 'UNPSBA', 'UNPSBS', 'UNPSC', 'UNPSCMS', 'UNPSEBS', 'UNPSEU', 'UNPSSBS', 'UNPSY', 'UNPSYCHBA', 'UNPSYPHD', 'UNPY', 'UNPYMS', 'UNPYPHD', 'UNPYSM', 'UNRELSTBA', 'UNRISD', 'UNRSM', 'UNRUM', 'UNSAB', 'UNSCIEDBS', 'UNSED', 'UNSEDMED', 'UNSH', 'UNSOAPHD', 'UNSOC', 'UNSOCBA', 'UNSOCWKB', 'UNSOHMS', 'UNSOHPHD', 'UNSOM', 'UNSPE', 'UNSPEMED', 'UNSPEMS', 'UNSPM', 'UNSPMGTBS', 'UNSPNSHBA', 'UNSPSM', 'UNSSC', 'UNSSCGM', 'UNSSCMS', 'UNSSCPHD', 'UNSSM', 'UNST', 'UNSTBS', 'UNSTM', 'UNSTMR', 'UNSTPHD', 'UNSTSBA', 'UNSTSBS', 'UNSVMMR', 'UNTC', 'UNTCMS', 'UNTD', 'UNTDEBS', 'UNTDMED', 'UNTE', 'UNTEBS', 'UNTECEDBS', 'UNTEDEDD', 'UNTEM', 'UNTEMS', 'UNTEU', 'UNTEX', 'UNTFGBS', 'UNTGMAS', 'UNTISSEGRM', 'UNTMT', 'UNTMTMR', 'UNTMTMS', 'UNTOX', 'UNTOXPHD', 'UNTP', 'UNTRU', 'UNTTM', 'UNTTMPHD', 'UNTXAPMBS', 'UNTXTECHBS', 'UNTXUD', 'UNUGS', 'UNUNEX', 'UNWGM', 'UNWGSBA', 'UNWILDLFM', 'UNWOODPBS', 'UNWPS', 'UNWPSMS', 'UNWPSPHD', 'UNWSCIM', 'UNZO', 'UNZOM', 'UNZOMS', 'UNZOOBS', 'UNZOPHD'],
-			                labels: {
-			                    rotation: -45,
-			                    align: 'right',
-			                    style: {
-			                        fontSize: '13px',
-			                        fontFamily: 'Verdana, sans-serif'
-			                    }
-			                }
-			            },
-			            yAxis: {
-			                min: 0,
-			                title: {
-			                    text: 'Number of Checkouts'
-			                }
-			            },
-			            legend: {
-			                enabled: false
-			            },
-			            tooltip: {
-			                formatter: function() {
-			                    return '<b>'+ this.x +'</b><br/>'+
-			                        'Checkouts: '+ Highcharts.numberFormat(this.y, 0);
-			                }
-			            },
-			            series: [{
-			                name: 'Status',
-			                data:  <%= ['N/A', 'NCCU', 'PECRCLIB', 'PEFRIENDS', 'PESTAFF', 'PEUNCSYS', 'PEUNDERGRAD', 'UJOK', 'UN040101', 'UN056401', 'UN056601', 'UN056901', 'UN081601', 'UN083001', 'UN085001', 'UN110103', 'UN110901', 'UN111101', 'UN111501', 'UN112101', 'UN118401', 'UN139001', 'UN140888', 'UN140901', 'UN141188', 'UN143201', 'UN143401', 'UN148501', 'UN150201', 'UN160101', 'UN162701', 'UN164501', 'UN169914', 'UN186401', 'UN190101', 'UN192001', 'UN194001', 'UN196001', 'UN200201', 'UN202001', 'UN222201', 'UN250101', 'UN252401', 'UN258401', 'UN320101', 'UN443401', 'UN443501', 'UN443601', 'UN447601', 'UN471501', 'UN491501', 'UN512001', 'UN513001', 'UN514001', 'UN517101', 'UNAA', 'UNAAMS', 'UNACCBS', 'UNACQ', 'UNAD', 'UNADE', 'UNADEMED', 'UNADEMS', 'UNADMR', 'UNADNB', 'UNADS-CIRC', 'UNAE', 'UNAEBS', 'UNAEE', 'UNAEEMS', 'UNAEMS', 'UNAEPHD', 'UNAEU', 'UNAFSBA', 'UNAGBAAS', 'UNAGBUSBS', 'UNAGC', 'UNAGE', 'UNAGEDBS', 'UNAGEVTBS', 'UNAGI', 'UNAGRONBS', 'UNAGSBS', 'UNAGSCI', 'UNAMA', 'UNAMAMS', 'UNAMAPHD', 'UNAMATHBS', 'UNAMM', 'UNANA', 'UNANAPHD', 'UNANM', 'UNANPPHD', 'UNANS', 'UNANSCBS', 'UNANSGM', 'UNANSMR', 'UNANT', 'UNANTHBA', 'UNANTMA', 'UNAPSOCBS', 'UNARC', 'UNARCMR', 'UNARTAPBA', 'UNARTM', 'UNASM', 'UNATE', 'UNAYM', 'UNBAE', 'UNBAEMS', 'UNBBSBS', 'UNBCH', 'UNBCHPHD', 'UNBEBS', 'UNBEU', 'UNBIM', 'UNBIOCHBS', 'UNBIOSCBS', 'UNBLM', 'UNBMA', 'UNBMAPHD', 'UNBME', 'UNBMEBS', 'UNBMEMS', 'UNBMEPHD', 'UNBMEU', 'UNBMM', 'UNBOTNYBS', 'UNBTECM', 'UNBUSBS', 'UNBUSEDBS', 'UNCALS', 'UNCAM', 'UNCBE', 'UNCBEMR', 'UNCBEPHD', 'UNCBS', 'UNCBSPHD', 'UNCCE', 'UNCCS', 'UNCCTCTG', 'UNCE', 'UNCEA', 'UNCEAMED', 'UNCEBS', 'UNCED', 'UNCEDCTG', 'UNCEDMED', 'UNCEDPHD', 'UNCEDUC', 'UNCEL', 'UNCEMBS', 'UNCEMR', 'UNCEMS', 'UNCEMU', 'UNCEPHD', 'UNCERT', 'UNCES', 'UNCEU', 'UNCH', 'UNCHASS', 'UNCHEBS', 'UNCHEGM', 'UNCHEMBA', 'UNCHEMBS', 'UNCHEU', 'UNCHL', 'UNCHMS', 'UNCHPHD', 'UNCHS', 'UNCI', 'UNCIGM', 'UNCIM', 'UNCIMED', 'UNCIPPHD', 'UNCIT', 'UNCLM', 'UNCN', 'UNCNCMS', 'UNCNEMS', 'UNCNM', 'UNCNR', 'UNCOE', 'UNCOM', 'UNCOMBA', 'UNCOMMS', 'UNCPE', 'UNCPEBS', 'UNCPEMS', 'UNCPEPHD', 'UNCPEU', 'UNCPM', 'UNCRD', 'UNCRDPHD', 'UNCRIMBS', 'UNCRIMNBA', 'UNCS', 'UNCSC', 'UNCSCBS', 'UNCSCMS', 'UNCSCPHD', 'UNCSCU', 'UNCSM', 'UNCSMR', 'UNCSMS', 'UNCSP', 'UNCSPHD', 'UNCSPMR', 'UNCWM', 'UNDAECTG', 'UNDASA', 'UNDDN', 'UNDDNPHD', 'UNDN', 'UNDNM', 'UNDSBA', 'UNDSM', 'UNDSR', 'UNDUAP', 'UNDUK', 'UNDVM', 'UNEA', 'UNEAS', 'UNEC', 'UNECAMA', 'UNECAMR', 'UNECAMS', 'UNECAPHD', 'UNECLMA', 'UNECLMR', 'UNECLPHD', 'UNECM', 'UNECONBA', 'UNECONBS', 'UNECR', 'UNECRMFA', 'UNEDAB', 'UNEDGENBS', 'UNEDUD', 'UNEDUN', 'UNEE', 'UNEEBS', 'UNEEMS', 'UNEEPHD', 'UNEEU', 'UNELMEDBS', 'UNENE', 'UNENEBS', 'UNENEMR', 'UNENEU', 'UNENG', 'UNENGLBA', 'UNENGLBS', 'UNENGLM', 'UNENGMA', 'UNENGR', 'UNENSCIBS', 'UNENT', 'UNENTOMOLOGY', 'UNENVSCBS', 'UNENVTBS', 'UNEPSE', 'UNERP', 'UNERPPHD', 'UNETC', 'UNETCMS', 'UNETHM', 'UNETM', 'UNEU', 'UNEVM', 'UNEXTEDBS', 'UNEXTEDM', 'UNFCS', 'UNFCTAAS', 'UNFEM', 'UNFGM', 'UNFLF', 'UNFLFMA', 'UNFLGBA', 'UNFLL', 'UNFLM', 'UN	', 'UNFLSMA', 'UNFM', 'UNFMBMR', 'UNFMMR', 'UNFOODSBS', 'UNFOR', 'UNFORMS', 'UNFORMTBS', 'UNFORPHD', 'UNFPS', 'UNFPSPHD', 'UNFRM', 'UNFRNCHBA', 'UNFRNCHM', 'UNFS', 'UNFSCM', 'UNFSM', 'UNFSMR', 'UNFSMS', 'UNFSPHD', 'UNFTMBS', 'UNFW', 'UNFWAMS', 'UNFWFMS', 'UNFWFPHD', 'UNFWSCIBS', 'UNFWVPHD', 'UNFYC', 'UNGB', 'UNGBMR', 'UNGBPHD', 'UNGBSPHD', 'UNGCERT', 'UNGD', 'UNGDB', 'UNGDMR', 'UNGEOLBA', 'UNGEOLBS', 'UNGF', 'UNGFGPHD', 'UNGFMS', 'UNGIM', 'UNGIMMR', 'UNGISMR', 'UNGIST', 'UNGM', 'UNGN', 'UNGNAAAS', 'UNGNM', 'UNGNMR', 'UNGTCCTU', 'UNGTECTU', 'UNGTN', 'UNGTS', 'UNHED', 'UNHEDEDD', 'UNHEDMED', 'UNHI', 'UNHIGM', 'UNHIM', 'UNHIMA', 'UNHISTBA', 'UNHISTBS', 'UNHLTHM', 'UNHMM', 'UNHORTBS', 'UNHR', 'UNHRMS', 'UNHS', 'UNHSM', 'UNHSMR', 'UNHSMS', 'UNHSPHD', 'UNHSSUD', 'UNICT', 'UNID', 'UNIDB', 'UNIDMR', 'UNIE', 'UNIEBS', 'UNIEGM', 'UNIEM', 'UNIEMR', 'UNIEMS', 'UNIEP', 'UNIEPHD', 'UNIEU', 'UNII', 'UNIM', 'UNIMIMR', 'UNIMS', 'UNIMSMR', 'UNIMVPHD', 'UNINTGM', 'UNINTSTBA', 'UNISM', 'UNITM', 'UNJOM', 'UNJPM', 'UNLAP', 'UNLAR', 'UNLARB', 'UNLARMR', 'UNLIFSC', 'UNLJM', 'UNLND', 'UNLPMAAS', 'UNLPSBA', 'UNLS', 'UNLSMBS', 'UNMA', 'UNMAA', 'UNMAC', 'UNMACMR', 'UNMAGM', 'UNMAM', 'UNMAMS', 'UNMAPHD', 'UNMARSCBS', 'UNMAT', 'UNMATHBS', 'UNMATMA', 'UNMB', 'UNMBA', 'UNMBAMR', 'UNMBGM', 'UNMBIOBS', 'UNMBM', 'UNMBT', 'UNMBTMR', 'UNME', 'UNMEA', 'UNMEAMS', 'UNMEAPHD', 'UNMEBS', 'UNMED', 'UNMEDMED', 'UNMEDMS', 'UNMEMS', 'UNMEPHD', 'UNMER', 'UNMETBS', 'UNMEU', 'UNMGMT', 'UNMGMTUD', 'UNMIDEDBS', 'UNMIS', 'UNMISMR', 'UNMLESTM', 'UNMOBCTG', 'UNMSA', 'UNMSE', 'UNMSEBS', 'UNMSEGM', 'UNMSEMR', 'UNMSEPHD', 'UNMSEU', 'UNMSW', 'UNMSWMR', 'UNMTHEDBS', 'UNMUM', 'UNNATREBS', 'UNNATRLBS', 'UNNCC', 'UNND', 'UNNDS', 'UNNE', 'UNNEBS', 'UNNEMS', 'UNNEPHD', 'UNNEU', 'UNNLGMED', 'UNNPCCTG', 'UNNPM', 'UNNR', 'UNNRFMR', 'UNNRFMS', 'UNNROMS', 'UNNSEA', 'UNNSEB', 'UNNT', 'UNNTAMS', 'UNNTFGM', 'UNNTFMR', 'UNNTRUD', 'UNNTSBS', 'UNOLM', 'UNOLTAS', 'UNOR', 'UNORIMR', 'UNORIMS', 'UNORIPHD', 'UNORMMS', 'UNORMR', 'UNORMS', 'UNORPHD', 'UNOSM', 'UNPA', 'UNPAC', 'UNPAMR', 'UNPAMS', 'UNPAMSU', 'UNPB', 'UNPBBS', 'UNPBM', 'UNPBMS', 'UNPBPHD', 'UNPBS', 'UNPCCBS', 'UNPCM', 'UNPEA', 'UNPGMBS', 'UNPH', 'UNPHAMR', 'UNPHILBA', 'UNPHILBS', 'UNPHM', 'UNPHMA', 'UNPHPMR', 'UNPHPMS', 'UNPHVMR', 'UNPHY', 'UNPHYSBA', 'UNPHYSBS', 'UNPLTRYBS', 'UNPP', 'UNPPGCTG', 'UNPPT', 'UNPRM', 'UNPRMED', 'UNPRT', 'UNPRTBS', 'UNPRTMR', 'UNPRTMS', 'UNPRTPHD', 'UNPRVET', 'UNPSBA', 'UNPSBS', 'UNPSC', 'UNPSCMS', 'UNPSEBS', 'UNPSEU', 'UNPSSBS', 'UNPSY', 'UNPSYCHBA', 'UNPSYPHD', 'UNPY', 'UNPYMS', 'UNPYPHD', 'UNPYSM', 'UNRELSTBA', 'UNRISD', 'UNRSM', 'UNRUM', 'UNSAB', 'UNSCIEDBS', 'UNSED', 'UNSEDMED', 'UNSH', 'UNSOAPHD', 'UNSOC', 'UNSOCBA', 'UNSOCWKB', 'UNSOHMS', 'UNSOHPHD', 'UNSOM', 'UNSPE', 'UNSPEMED', 'UNSPEMS', 'UNSPM', 'UNSPMGTBS', 'UNSPNSHBA', 'UNSPSM', 'UNSSC', 'UNSSCGM', 'UNSSCMS', 'UNSSCPHD', 'UNSSM', 'UNST', 'UNSTBS', 'UNSTM', 'UNSTMR', 'UNSTPHD', 'UNSTSBA', 'UNSTSBS', 'UNSVMMR', 'UNTC', 'UNTCMS', 'UNTD', 'UNTDEBS', 'UNTDMED', 'UNTE', 'UNTEBS', 'UNTECEDBS', 'UNTEDEDD', 'UNTEM', 'UNTEMS', 'UNTEU', 'UNTEX', 'UNTFGBS', 'UNTGMAS', 'UNTISSEGRM', 'UNTMT', 'UNTMTMR', 'UNTMTMS', 'UNTOX', 'UNTOXPHD', 'UNTP', 'UNTRU', 'UNTTM', 'UNTTMPHD', 'UNTXAPMBS', 'UNTXTECHBS', 'UNTXUD', 'UNUGS', 'UNUNEX', 'UNWGM', 'UNWGSBA', 'UNWILDLFM', 'UNWOODPBS', 'UNWPS', 'UNWPSMS', 'UNWPSPHD', 'UNWSCIM', 'UNZO', 'UNZOM', 'UNZOMS', 'UNZOOBS', 'UNZOPHD'].map { |status| Checkout.college_total(status)}.inspect %>,
-			                dataLabels: {
-			                    enabled: true,
-			                    rotation: -90,
-			                    color: '#FFFFFF',
-			                    align: 'right',
-			                    x: 4,
-			                    y: 10,
-			                    style: {
-			                        fontSize: '13px',
-			                        fontFamily: 'Verdana, sans-serif'
-			                    }
-			                }
-			            }]
-			        });
-			    });
-
-			</script>
-			</div> -->
 	
 <% @checkouts.each do |checkout| %>
-  <tr>
+  <tr class="<%= cycle("odd", "even") -%>">
     <td><%= checkout.call_number %></td>
     <td><%= checkout.date %></td>
     <td><%= checkout.start_time %></td>
@@ -203,13 +139,8 @@
     <td><%= checkout.patron_status %></td>
     <td><%= checkout.patron_college %></td>
     <td><%= checkout.renewals %></td>
-    <td><%= link_to 'Show', checkout %></td>
-    <td><%= link_to 'Edit', edit_checkout_path(checkout) %></td>
-    <td><%= link_to 'Destroy', checkout, method: :delete, data: { confirm: 'Are you sure?' } %></td>
   </tr>
 <% end %>
 </table>
 <% end %>
 <br />
-
-<%= link_to 'New Checkout', new_checkout_path %>

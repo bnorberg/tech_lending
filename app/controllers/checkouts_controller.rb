@@ -4,7 +4,7 @@ class CheckoutsController < ApplicationController
   def index  
     require 'csv'
     @q = Checkout.search(params[:q])
-    @checkouts = @q.result(:distinct => true).paginate(:page =>params[:page], :per_page => 25)
+    @checkouts = @q.result(:distinct => true).paginate(:page =>params[:page], :per_page => 50)
     respond_to do |format|
       format.html # index.html.erb  
       format.json { render :json => @checkouts }
