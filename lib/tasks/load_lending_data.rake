@@ -780,7 +780,7 @@ namespace :db do
                     elsif line[3] == 'P4PROTECT' or line[3] == 'PHVISNOPAY'
                       if line[2] = 'PHNOPAY'
                         co = Checkout.create(:transaction_id => line[0], :call_number => line[10], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
-                                                :patron_status => line[6].sub('PE,' ''), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
+                                                :patron_status => line[6].sub('PE', ''), :patron_college => 'N/A', :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)
                       else
                         co = Checkout.create(:transaction_id => line[0], :call_number => line[10], :date => get_date(line[0]), :start_time => get_time(line[0]), :end_time => '', :duration => '',
                                                 :patron_status => get_status(line[2]), :patron_college => line[5], :renewals => 0, :created_at => Time.now.strftime('%B %Y'), :updated_at => Time.now)

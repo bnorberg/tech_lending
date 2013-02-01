@@ -62,7 +62,7 @@
 			  name: 'Checkouts',
 			  pointInterval: 24 * 3600 * 1000,
 			  pointStart: Date.UTC(2010, 07, 10),
-		      data: <%= ((Date.new(2012,10,24) - 806).to_date..(Date.new(2012,10,24) - 35).to_date).map { |date| @checkouts.where(:date => date).count}.inspect %>
+		      data: <%= ((Date.new(2012,10,24) - 806).to_date..(Date.today - 5).to_date).map { |date| @checkouts.where(:date => date).count}.inspect %>
 		    }]
 		  });
 		});

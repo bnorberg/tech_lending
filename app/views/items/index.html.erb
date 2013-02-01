@@ -5,25 +5,6 @@
  <p> <%= f.label "Call Number" %>
   <%= f.select :call_number_eq, Item.get_item_call_number, :size => 20 %></p>
 </div>
-<!-- 
-<p> <%= f.label "Item" %>
-  <%= f.text_field :name_cont, :size => 20 %></p>
- </div>
- <div id="patron_info">
-	tem.get_patron_status Item.get_patron_college
- <h2>Search By Patron Info</h2>
- <p> <%= f.label "Status" %>
-  <%= f.select :checkouts_patron_status_eq, ['FR', 'SO', 'JR', 'SR', 'GRAD', 'FACULTY'], :include_blank => true %></p>
-  <p><%= f.label "College" %>
-  <%= f.select :checkouts_patron_college_eq, ['UNCHASS', 'UNMGMT', 'UNENGR'], :include_blank => true %></p>
- </div>
- <div id="date_received">
- <h2>Search By Checkout Info</h2>
- <p> <%= f.label "Date" %>
-  <%= f.text_field :checkouts_date_eq, :size => 10 %></p>
-  <%= f.label "Date Range " %><%= f.text_field :checkouts_date_gteq , :size => 10 %><%= f.text_field :checkouts_date_lteq, :size => 10 %>
- </div>
-</div> -->
 <div id="buttons">
  <div class="example1" id="submit_search"> <%= f.submit %></div> <div class="example1"><span><%= link_to "Clear Search", items_path %></span></div> <div class="example1"><span><%= link_to "Download Results", :action => "index", :q => params[:q], :format => :csv %></span></div>
 </div>
@@ -33,11 +14,17 @@
 <% if @items.empty? %>
   <h2> <span style="font-size:18pt; color:grey">There are no letters that match you query</span></h2>
 <% else %>
-<!--<p>Sort By:
- <%= sort_link @q, :date, "Date" %> -->
-
+<table id="main">
+  <tr>
+    <th>Item</th>
+	<th>Call Number</th>
+    <th>Location</th>
+  </tr>
 <% @items.each do |item| %>
-<div id="item_checkout" style='width: 1750px; height: 700px;'>
+<br />
+<h2>View Charts</h2>
+<%= link_to_function "Checkouts Over Time", "$('#item_checkout').toggle()" %> | <%= link_to_function "Checkouts By Patron Status", "$('#status_chart').toggle()" %><br /><br />
+<div id="item_checkout" style='width: 1750px; height: 700px; display:none'>
 	<script type="text/javascript" charset="utf-8">
 	  $(function () {
 	    new Highcharts.Chart({
@@ -60,7 +47,7 @@
 	</script>
 	
 </div>
-<div id='status_chart' style='width: 1750px; height: 700px;'>
+<div id='status_chart' style='width: 1750px; height: 700px; display:none'>
 	<script type='text/javascript' charset='utf-8'>
 	$(function () {
 	    new Highcharts.Chart({
@@ -73,7 +60,7 @@
 	                text: 'Checkouts By Status'
 	            },
 	            xAxis: {
-	                categories: ['3CED', '4ROTECT', 'C', 'DIST', 'FACSOUS', 'FACULTY', 'FACULTY-POSTDOC', 'FR', 'FSU', 'GNCSU-SR', 'GRAD', 'GRAD-NCSU-DIST', 'HFACULTY', 'HNOAY', 'HRAD', 'HSTAFF', 'HUNDERRAD', 'HVISNOAY', 'INDIVD', 'JR', 'NCSU-DIST', 'NCSU-DIST-FR', 'NCSU-DIST-JR', 'NCSU-DIST-SO', 'NCSU-DIST-SR', 'NCSUSTAFF', 'NOAY', 'RISD', 'SCUG', 'SHAW', 'SO', 'SR', 'STAFF', 'STEORE', 'TM', 'TRLN', 'Test Circ', 'UNCSYS', 'UNDERGRAD', 'UNDRGRAD', 'UNIVAFFIL', 'UZ1/3/50321', 'UZ2/26/50349', 'UZ6/6/1990', 'VISNOAY'],
+	                categories: ["FACULTY", "FR", "GRAD", "GRAD-NCSU-DIST", "JR", "NCSU-DIST-FR", "NCSU-DIST-JR", "NCSU-DIST-SO", "NCSU-DIST-SR", "SO", "SR", "STAFF", "TRLN", "UNDERGRAD"],
 	                labels: {
 	                    rotation: -45,
 	                    align: 'right',
@@ -100,7 +87,7 @@
 	            },
 	            series: [{
 	                name: 'Status',
-	                data:  <%= ['3CED', '4ROTECT', 'C', 'DIST', 'FACSOUS', 'FACULTY', 'FACULTY-POSTDOC', 'FR', 'FSU', 'GNCSU-SR', 'GRAD', 'GRAD-NCSU-DIST', 'HFACULTY', 'HNOAY', 'HRAD', 'HSTAFF', 'HUNDERRAD', 'HVISNOAY', 		'INDIVD', 'JR', 'NCSU-DIST', 'NCSU-DIST-FR', 'NCSU-DIST-JR', 'NCSU-DIST-SO', 'NCSU-DIST-SR', 'NCSUSTAFF', 'NOAY', 'RISD', 'SCUG', 'SHAW', 'SO', 'SR', 'STAFF', 'STEORE', 'TM', 'TRLN', 'Test Circ', 'UNCSYS', 'UNDERGRAD', 'UNDRGRAD', 'UNIVAFFIL', 'UZ1/3/50321', 'UZ2/26/50349', 'UZ6/6/1990', 'VISNOAY'].map { |status| item.checkouts.where(:patron_status =>status).count}.inspect %>,
+	                data:  <%= ["FACULTY", "FR", "GRAD", "GRAD-NCSU-DIST", "JR", "NCSU-DIST-FR", "NCSU-DIST-JR", "NCSU-DIST-SO", "NCSU-DIST-SR", "SO", "SR", "STAFF", "TRLN", "UNDERGRAD"].map { |status| item.checkouts.where(:patron_status =>status).count}.inspect %>,
 	                dataLabels: {
 	                    enabled: true,
 	                    rotation: -90,
@@ -118,13 +105,7 @@
 	    });
 	
 	</script>
-<table id="main">
-  <tr>
-    <th>Item</th>
-	<th>Call Number</th>
-    <th>Location</th>
-  </tr>	
-  <tr class="<%= cycle("even", "odd") %>">
+  <tr class="<%= cycle("odd", "even") -%>">
     <td><%= item.call_number.sub("IQ", "") %></td>
 	<td><%= item.call_number %></td>
     <td><%= item.location.sub("UM", "") %></td>
