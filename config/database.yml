@@ -10,7 +10,7 @@
 #  database: tech_lending_development
 #  host: localhost
 #  username: librarian19
-#  password: uia11 
+#  password: ***** 
 #  socket: /tmp/mysql.sock
 #  pool: 5
 #  timeout: 5000
